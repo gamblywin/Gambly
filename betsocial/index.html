@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BetSocial — Aposte. Compartilhe. Vença junto.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="variables.css"><link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="app.css"><link rel="stylesheet" href="components.css"><link rel="stylesheet" href="responsive.css"><link rel="stylesheet" href="sprint5.css"><link rel="stylesheet" href="sprint6.css"><link rel="stylesheet" href="sprint7.css">
+</head>
+<body>
+
+<div id="authGate" class="auth-gate" aria-label="Autenticação BetSocial">
+  <div class="auth-ambient" aria-hidden="true">
+    <div class="auth-ball"></div><div class="auth-lights"></div><div class="auth-field"></div>
+  </div>
+  <div class="auth-brand">
+    <div class="auth-wordmark"><b>BET</b><span>SOCIAL</span><i>✓</i></div>
+    <p>Aposte. Compartilhe. <strong>Vença junto.</strong></p>
+  </div>
+  <div class="auth-panels">
+    <section class="auth-card auth-login-card">
+      <button class="auth-back auth-close" id="closeLogin" type="button" aria-label="Voltar ao site">←</button>
+      <div class="auth-hero">
+        <div class="auth-hero-copy">
+          <h1>Bem-vindo de volta!</h1>
+          <p>Faça login para continuar</p>
+        </div>
+        <div class="auth-hero-art">
+          <span class="auth-fan fan-1"></span><span class="auth-fan fan-2"></span>
+          <span class="auth-person"></span><span class="auth-phone"></span>
+          <span class="auth-stat">↗<b>ODDS <em>2.45</em></b></span>
+        </div>
+      </div>
+      <form id="loginForm" class="auth-fields" autocomplete="on">
+        <label>E-mail ou usuário
+          <span class="auth-input"><i>♙</i><input id="loginIdentity" name="username" autocomplete="username" placeholder="Digite seu e-mail ou usuário" required></span>
+        </label>
+        <label>Senha
+          <span class="auth-input"><i>♙</i><input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required><button type="button" class="password-toggle" data-target="loginPassword">◉</button></span>
+          <button type="button" class="forgot-password" id="forgotPassword">Esqueci minha senha</button>
+        </label>
+        <label class="check-row"><input id="rememberLogin" type="checkbox" checked><span></span> Lembrar de mim</label>
+        <button class="auth-submit" type="submit">Entrar</button>
+        <div class="auth-divider"><span>ou</span></div>
+        <button type="button" class="google-btn" id="googleLogin"><b>G</b> Entrar com Google</button>
+        <p class="auth-switch">Não tem uma conta? <button type="button" id="showRegister">Cadastre-se</button></p>
+      </form>
+    </section>
+    <section class="auth-card auth-register-card">
+      <button class="auth-back" id="backToLogin" type="button">←</button>
+      <div class="auth-register-head">
+        <h2>Crie sua conta</h2><p>Junte-se à comunidade de apostadores</p>
+      </div>
+      <form id="registerForm" class="auth-fields">
+        <label>Nome completo
+          <span class="auth-input"><i>♙</i><input id="registerName" autocomplete="name" placeholder="Digite seu nome completo" required></span>
+        </label>
+        <label>Usuário
+          <span class="auth-input"><i>@</i><input id="registerHandle" autocomplete="username" placeholder="Escolha um nome de usuário" required></span>
+        </label>
+        <label>E-mail
+          <span class="auth-input"><i>✉</i><input id="registerEmail" type="email" autocomplete="email" placeholder="Digite seu melhor e-mail" required></span>
+        </label>
+        <label>Senha
+          <span class="auth-input"><i>♙</i><input id="registerPassword" type="password" autocomplete="new-password" placeholder="Crie uma senha" required><button type="button" class="password-toggle" data-target="registerPassword">◉</button></span>
+          <span class="password-strength"><small>Força da senha: <b id="passwordStrengthText">Fraca</b></small><i><em id="strengthFill"></em></i></span>
+        </label>
+        <label>Confirmar senha
+          <span class="auth-input"><i>♙</i><input id="registerConfirm" type="password" autocomplete="new-password" placeholder="Confirme sua senha" required><button type="button" class="password-toggle" data-target="registerConfirm">◉</button></span>
+        </label>
+        <label class="check-row terms"><input id="acceptTerms" type="checkbox" required><span></span> Eu aceito os <a href="#" onclick="return false">Termos de Uso</a> e a <a href="#" onclick="return false">Política de Privacidade</a></label>
+        <button class="auth-submit" type="submit">Criar conta</button>
+        <p class="auth-switch">Já tem uma conta? <button type="button" id="showLogin">Faça login</button></p>
+      </form>
+    </section>
+  </div>
+  <div class="auth-demo-note">BetSocial · Sprint 11 · Ambiente local de desenvolvimento</div>
+</div>
+
+<div class="app-shell">
+<header class="topbar">
+<a class="brand" href="#"><span class="brand-mark">B</span><span>Bet<span>Social</span></span></a>
+<div class="global-search"><span>⌕</span><input id="globalSearch" type="search" placeholder="Pesquisar usuários, jogos ou apostas..."></div>
+<div class="top-actions">
+<button class="top-login-btn" id="openLogin" type="button">Entrar</button>
+<div id="userActions" class="user-actions" hidden>
+<button class="icon-btn" data-action="notificações">♧<i></i></button><button class="icon-btn" data-action="mensagens">◌</button>
+<button class="wallet-pill">R$ 1.250,00</button><button class="profile-chip"><span id="headerAvatar" class="avatar avatar-sm">?</span><span class="profile-copy"><b id="headerName">Visitante</b><small id="headerHandle">@visitante</small></span>⌄</button>
+</div>
+</div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+<button class="create-main" id="openComposer">＋ Nova publicação</button>
+<nav class="main-nav">
+<a class="nav-item active" href="#"><span>⌂</span> Feed</a><a class="nav-item" href="#"><span>⌕</span> Explorar</a>
+<a class="nav-item" href="#"><span>◉</span> Stories</a><a class="nav-item" href="#"><span>✦</span> BetIA <em>NOVO</em></a>
+<a class="nav-item" href="#"><span>↗</span> Mercado</a><a class="nav-item" href="#"><span>♛</span> Ranking</a>
+<a class="nav-item" href="#"><span>♧</span> Comunidades</a><a class="nav-item" href="#"><span>◷</span> Ao vivo</a>
+</nav>
+<div class="sidebar-section"><div class="section-title">MEUS TIMES</div>
+<div class="team-mini"><span class="team-logo">F</span> Flamengo <b>●</b></div>
+<div class="team-mini"><span class="team-logo">P</span> Palmeiras</div><div class="team-mini"><span class="team-logo">V</span> Vasco</div>
+</div>
+<div class="sidebar-bottom"><a class="nav-item" href="#"><span>⚙</span> Configurações</a>
+<div class="mini-banner"><strong>BetIA</strong><span>Transforme seus dados em análises.</span><button>Conhecer</button></div></div>
+</aside>
+
+<main class="feed">
+<section class="stories-card card"><div class="section-head"><div><h2>Stories</h2><small>Veja o que está acontecendo</small></div><button class="text-btn">Ver todos</button></div>
+<div class="stories-row">
+<button class="story" data-story="Seu story"><span class="story-ring add-ring"><span class="story-avatar">＋</span></span><b>Seu story</b></button>
+<button class="story" data-story="TraderPro"><span class="story-ring"><span class="story-avatar avatar-purple">T</span></span><b>TraderPro</b></button>
+<button class="story" data-story="AnaBet"><span class="story-ring"><span class="story-avatar avatar-blue">A</span></span><b>AnaBet</b></button>
+<button class="story" data-story="RafaTips"><span class="story-ring"><span class="story-avatar avatar-orange">R</span></span><b>RafaTips</b></button>
+<button class="story" data-story="JoãoTrader"><span class="story-ring"><span class="story-avatar avatar-red">J</span></span><b>JoãoTrader</b></button>
+<button class="story" data-story="BolaNaRede"><span class="story-ring"><span class="story-avatar avatar-teal">B</span></span><b>BolaNaRede</b></button>
+</div></section>
+
+<section class="composer card guest-sensitive"><div class="composer-top"><span class="avatar" id="composerAvatar">?</span><button class="composer-input" id="openComposer2">No que você está apostando hoje?</button></div>
+<div class="composer-actions"><button data-compose="Foto">▣ Foto</button><button data-compose="Vídeo">▶ Vídeo</button><button data-compose="Enquete">▤ Enquete</button><button data-compose="Aposta">⌁ Aposta</button><button class="publish-btn" id="publishQuick">Publicar</button></div></section>
+
+<div class="feed-tabs"><button class="active">Para você</button><button>Seguindo</button><button>Mais recentes</button></div>
+
+<article class="post card"><header class="post-header"><span class="avatar avatar-purple">T</span><div class="post-author"><b>TraderPro <span class="verified">✓</span></b><small>@traderpro · há 5 min</small></div><button class="more-btn">•••</button></header>
+<p class="post-text">Flamengo x Palmeiras hoje. Minha leitura está em gols: acredito em um jogo aberto e vejo valor no mercado abaixo.</p>
+<div class="bet-card"><div class="bet-top"><span>BRASILEIRÃO SÉRIE A</span><span class="status">PRÉ-JOGO</span></div>
+<div class="match"><div class="club"><span class="club-badge">F</span><b>Flamengo</b></div><div class="versus">VS</div><div class="club"><span class="club-badge">P</span><b>Palmeiras</b></div></div>
+<div class="bet-grid"><div><small>MERCADO</small><b>Mais de 2.5 gols</b></div><div><small>ODD</small><strong class="odd">2.18</strong></div><div><small>STAKE</small><b>3%</b></div><div><small>CONFIANÇA</small><b class="confidence">9/10</b></div></div>
+<div class="bet-bottom"><span>⚡ Análise do tipster</span><button>Apostar</button></div></div>
+<footer class="post-footer"><button class="like">♡ <span>254</span></button><button>◯ <span>38</span></button><button>↗ <span>12</span></button><button>⌑</button></footer></article>
+
+<article class="post card"><header class="post-header"><span class="avatar avatar-blue">A</span><div class="post-author"><b>AnaBet <span class="verified">✓</span></b><small>@anabet · há 18 min</small></div><button class="more-btn">•••</button></header>
+<p class="post-text">Green confirmado! Mais uma análise que bateu. 📈</p>
+<div class="result-card"><div class="result-icon">✓</div><div><small>RESULTADO</small><b>GREEN</b><span>+3.40% de retorno</span></div><strong>+R$ 170</strong></div>
+<footer class="post-footer"><button class="like">♡ <span>189</span></button><button>◯ <span>21</span></button><button>↗ <span>7</span></button><button>⌑</button></footer></article>
+</main>
+
+<aside class="rightbar">
+<section class="profile-card card" id="sidebarProfileCard"><div class="cover"></div><div class="profile-body"><span class="avatar avatar-lg" id="sidebarAvatar">?</span><h2 id="sidebarName">Visitante</h2><small id="sidebarHandle">Entre para ver seu perfil</small>
+<div class="stats"><div><b id="sidebarFollowers">—</b><span>Seguidores</span></div><div><b id="sidebarPosts">—</b><span>Posts</span></div><div><b id="sidebarWinRate">—</b><span>Win Rate</span></div></div><button class="outline-btn" id="sidebarProfileBtn">Entrar para ver perfil</button></div></section>
+<section class="side-card card"><div class="section-head compact"><h3>Top Tipsters</h3><button class="text-btn">Ver ranking</button></div>
+<div class="tipster"><span class="rank">1</span><span class="avatar avatar-purple avatar-xs">T</span><div><b>TraderPro</b><small>ROI +28.4%</small></div><strong>+28%</strong></div>
+<div class="tipster"><span class="rank">2</span><span class="avatar avatar-orange avatar-xs">R</span><div><b>RafaTips</b><small>ROI +22.1%</small></div><strong>+22%</strong></div>
+<div class="tipster"><span class="rank">3</span><span class="avatar avatar-blue avatar-xs">A</span><div><b>AnaBet</b><small>ROI +19.8%</small></div><strong>+19%</strong></div></section>
+<section class="side-card card live-card"><div class="section-head compact"><h3>Jogos ao vivo</h3><span class="live-label">● AO VIVO</span></div>
+<div class="live-game"><div><span>Flamengo</span><b>2</b></div><div><span>Vasco</span><b>1</b></div><small>2º tempo · 67'</small></div>
+<div class="live-game"><div><span>Real Madrid</span><b>1</b></div><div><span>Barcelona</span><b>1</b></div><small>1º tempo · 39'</small></div></section>
+</aside>
+</div></div>
+
+<div class="modal-backdrop" id="composerModal">
+<div class="modal wizard-modal">
+<header class="modal-head"><div><h2>Nova publicação</h2><small>Monte sua publicação passo a passo</small></div><button class="close-modal">×</button></header>
+<div class="wizard-progress"><div class="progress-line"><span id="progressFill"></span></div><div class="progress-steps">
+<span class="wiz-dot active" data-step="1">1</span><span class="wiz-label active">Tipo</span>
+<span class="wiz-dot" data-step="2">2</span><span class="wiz-label">Evento</span>
+<span class="wiz-dot" data-step="3">3</span><span class="wiz-label">Mercado</span>
+<span class="wiz-dot" data-step="4">4</span><span class="wiz-label">Conteúdo</span>
+<span class="wiz-dot" data-step="5">5</span><span class="wiz-label">Revisão</span>
+</div></div>
+
+<div class="wizard-page active" data-page="1">
+<h3>O que você quer publicar?</h3><p class="wizard-help">Escolha o formato que melhor representa sua análise.</p>
+<div class="type-grid">
+<button class="type-card selected" data-type="Análise"><span>◈</span><b>Análise</b><small>Compartilhe sua leitura completa.</small></button>
+<button class="type-card" data-type="Palpite"><span>⌁</span><b>Palpite</b><small>Publique uma indicação rápida.</small></button>
+<button class="type-card" data-type="Bilhete"><span>▤</span><b>Bilhete</b><small>Mostre uma múltipla.</small></button>
+<button class="type-card" data-type="Resultado"><span>✓</span><b>Resultado</b><small>Mostre o resultado de uma entrada.</small></button>
+</div></div>
+
+<div class="wizard-page" data-page="2">
+<h3>Escolha o evento</h3><p class="wizard-help">Selecione o esporte e a partida.</p>
+<div class="form-grid">
+<label>Esporte<select id="sport"><option>Futebol</option><option>Basquete</option><option>Tênis</option><option>eSports</option></select></label>
+<label>Campeonato<select id="league"><option>Brasileirão Série A</option><option>Copa do Brasil</option><option>Premier League</option><option>La Liga</option></select></label>
+</div>
+<div class="match-picker">
+<button class="match-option selected"><span class="club-badge">F</span><div><b>Flamengo</b><small>Hoje · 21:30</small></div><strong>VS</strong><div><b>Palmeiras</b><small>Maracanã</small></div><span class="club-badge">P</span></button>
+<button class="match-option"><span class="club-badge">R</span><div><b>Real Madrid</b><small>Amanhã · 16:00</small></div><strong>VS</strong><div><b>Barcelona</b><small>Bernabéu</small></div><span class="club-badge">B</span></button>
+</div></div>
+
+<div class="wizard-page" data-page="3">
+<h3>Defina seu mercado</h3><p class="wizard-help">Informe os dados da entrada.</p>
+<div class="form-grid three">
+<label>Mercado<select id="market"><option>Mais de 2.5 gols</option><option>Ambas marcam</option><option>Resultado final</option><option>Handicap</option></select></label>
+<label>Odd<input id="odd" type="number" value="2.18" step="0.01"></label>
+<label>Stake<input id="stake" type="number" value="3" min="0" max="100"><small>% da banca</small></label>
+</div>
+<div class="confidence-box"><div><b>Nível de confiança</b><small>Quanto você acredita nessa entrada?</small></div><div class="confidence-buttons"><button class="confidence-btn" data-confidence="6">6/10</button><button class="confidence-btn" data-confidence="7">7/10</button><button class="confidence-btn" data-confidence="8">8/10</button><button class="confidence-btn selected" data-confidence="9">9/10</button><button class="confidence-btn" data-confidence="10">10/10</button></div></div>
+</div>
+
+<div class="wizard-page" data-page="4">
+<h3>Adicione sua análise</h3><p class="wizard-help">Explique para sua comunidade por que essa entrada faz sentido.</p>
+<label class="textarea-label">Comentário<textarea id="analysisText" maxlength="500" placeholder="Ex.: Minha leitura é de um jogo aberto..."></textarea><small><span id="charCount">0</span>/500</small></label>
+<div class="extra-options"><button class="extra-option selected">▣ Adicionar imagem</button><button class="extra-option">▤ Criar enquete</button><button class="extra-option"># Adicionar tags</button></div>
+</div>
+
+<div class="wizard-page" data-page="5">
+<h3>Revise antes de publicar</h3><p class="wizard-help">Confira como sua publicação aparecerá no feed.</p>
+<div class="preview-post">
+<header class="post-header"><span id="previewAvatar" class="avatar avatar-purple">?</span><div class="post-author"><b id="previewAuthor">Visitante</b><small id="previewHandle">@visitante · agora</small></div></header>
+<p id="previewText" class="post-text">Minha análise para este jogo...</p>
+<div class="preview-bet"><div><small>EVENTO</small><b>Flamengo x Palmeiras</b></div><div><small>MERCADO</small><b id="previewMarket">Mais de 2.5 gols</b></div><div><small>ODD</small><strong id="previewOdd">2.18</strong></div><div><small>STAKE</small><b id="previewStake">3%</b></div><div><small>CONFIANÇA</small><b id="previewConfidence">9/10</b></div></div>
+</div></div>
+
+<footer class="modal-foot"><button class="outline-btn" id="prevStep">Voltar</button><button class="publish-btn" id="nextStep">Próximo</button></footer>
+</div></div>
+
+<div class="s3-panel" id="notificationsPanel"><div class="s3-panel-head"><div><h3>Notificações</h3><small>Você tem 3 novas</small></div><button class="s3-close" data-close-panel="notificationsPanel">×</button></div><div class="s3-tabs"><button class="active">Todas</button><button>Menções</button><button>Interações</button></div><div class="s3-list"><div class="s3-item"><span class="avatar avatar-purple avatar-xs">T</span><div class="s3-item-body"><p><b>TraderPro</b> curtiu sua publicação.</p><small>há 2 min</small></div><span class="s3-unread"></span></div><div class="s3-item"><span class="avatar avatar-blue avatar-xs">A</span><div class="s3-item-body"><p><b>AnaBet</b> começou a seguir você.</p><small>há 12 min</small></div><span class="s3-unread"></span></div><div class="s3-item"><span class="avatar avatar-orange avatar-xs">R</span><div class="s3-item-body"><p><b>RafaTips</b> mencionou você em uma análise.</p><small>há 31 min</small></div></div><div class="s3-item"><span class="avatar avatar-teal avatar-xs">B</span><div class="s3-item-body"><p>Seu palpite recebeu 18 novas interações.</p><small>há 1 h</small></div></div></div></div>
+<div class="s3-panel" id="messagesPanel"><div class="s3-panel-head"><div><h3>Mensagens</h3><small>3 conversas recentes</small></div><button class="s3-close" data-close-panel="messagesPanel">×</button></div><div class="message-preview" data-conversation="TraderPro"><span class="avatar avatar-purple avatar-xs">T</span><div class="message-copy"><b>TraderPro</b><p>Boa leitura no jogo de hoje. Vai entrar?</p></div><span class="message-time">2 min</span></div><div class="message-preview" data-conversation="AnaBet"><span class="avatar avatar-blue avatar-xs">A</span><div class="message-copy"><b>AnaBet</b><p>Green confirmado! 🔥</p></div><span class="message-time">18 min</span></div><div class="message-preview" data-conversation="RafaTips"><span class="avatar avatar-orange avatar-xs">R</span><div class="message-copy"><b>RafaTips</b><p>Te mandei aquela análise por aqui.</p></div><span class="message-time">1 h</span></div></div>
+<div class="s3-menu" id="profileMenu">
+<button data-profile-action="profile">👤 Ver meu perfil</button>
+<button data-profile-action="followers">👥 Seguidores e seguindo</button>
+<button data-profile-action="stats">📊 Minhas estatísticas</button>
+<button data-profile-action="settings">⚙ Configurações</button>
+<button id="logoutBtn" class="logout-menu">↪ Sair da conta</button>
+</div>
+<div class="modal-backdrop" id="profileModal"><div class="modal profile-modal"><header class="modal-head"><div><h2>Perfil</h2><small>Seu espaço no BetSocial</small></div><button class="close-modal">×</button></header><div class="profile-hero"></div><div class="profile-detail"><div class="profile-row"><span id="modalProfileAvatar" class="avatar avatar-lg">?</span><div class="profile-row-info"><h2 id="modalProfileName">Visitante</h2><small id="modalProfileHandle">Entre para ver seu perfil</small></div><div class="profile-actions"><button class="profile-action">Editar perfil</button><button class="profile-action primary">Compartilhar</button></div></div><p class="profile-bio">Análises de futebol, gestão de banca e acompanhamento de resultados. 📈⚽</p><div class="profile-stats-large"><div><b>1.2k</b><span>Seguidores</span></div><div><b>418</b><span>Seguindo</span></div><div><b>84</b><span>Publicações</span></div><div><b>68%</b><span>Win Rate</span></div></div><div class="profile-nav"><button class="active">Publicações</button><button>Resultados</button><button>Estatísticas</button></div><div class="profile-content"><div class="profile-post-mini"><p><b>Minha análise do dia:</b> Flamengo x Palmeiras, mercado de gols. Confiança 9/10 e odd 2.18.</p></div><div class="profile-post-mini"><p><b>Resumo da semana:</b> 14 entradas · 9 greens · ROI +8.6% · 68% de acerto.</p></div></div></div></div></div>
+<div class="modal-backdrop" id="followersModal"><div class="modal"><header class="modal-head"><div><h2>Rede</h2><small>Seguidores e pessoas que você segue</small></div><button class="close-modal">×</button></header><div class="s3-tabs"><button class="active">Seguidores · 1.2k</button><button>Seguindo · 418</button></div><div style="padding:16px"><div class="follow-list"><div class="follow-card"><span class="avatar avatar-purple avatar-xs">T</span><div><b>TraderPro</b><small>@traderpro</small></div><button class="outline-btn">Seguindo</button></div><div class="follow-card"><span class="avatar avatar-blue avatar-xs">A</span><div><b>AnaBet</b><small>@anabet</small></div><button class="outline-btn">Seguindo</button></div><div class="follow-card"><span class="avatar avatar-orange avatar-xs">R</span><div><b>RafaTips</b><small>@rafatips</small></div><button class="outline-btn">Seguindo</button></div><div class="follow-card"><span class="avatar avatar-red avatar-xs">J</span><div><b>JoãoTrader</b><small>@joaotrader</small></div><button class="outline-btn">Seguir</button></div></div></div></div></div>
+<div class="modal-backdrop" id="conversationModal"><div class="modal conversation-modal"><header class="modal-head"><div><h2 id="conversationTitle">TraderPro</h2><small>● online agora</small></div><button class="close-modal">×</button></header><div class="conversation-body" id="conversationBody"><div class="bubble-row"><div class="bubble">Boa leitura no jogo de hoje. Vai entrar?</div></div><div class="bubble-row me"><div class="bubble">Estou considerando. A odd está interessante.</div></div><div class="bubble-row"><div class="bubble">Também gostei. Te aviso se eu confirmar.</div></div></div><div class="conversation-input"><input id="messageInput" placeholder="Escreva uma mensagem..."><button id="sendMessage">Enviar</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script><script src="sprint7.js"></script>
+<script src="sprint8.js"></script><script src="sprint9.js"></script>
+</body></html>

@@ -1,3 +1,4 @@
+console.log("SERVER.JS FOI INICIADO");
 require('dotenv').config();
 const http=require('http');
 const fs=require('fs');
@@ -103,5 +104,75 @@ async function api(req,res,url){
   return send(res,404,{error:'Rota não encontrada'});
 }
 function staticFile(req,res,url){let pathname=decodeURIComponent(url.pathname);if(pathname==='/')pathname='/index.html';const file=path.normalize(path.join(ROOT,pathname));if(!file.startsWith(ROOT))return send(res,403,{error:'Forbidden'});fs.stat(file,(err,st)=>{if(err||!st.isFile())return send(res,404,{error:'Arquivo não encontrado'});const ext=path.extname(file),types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg'};res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream'});fs.createReadStream(file).pipe(res)})}
-const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');res.setHeader('Access-Control-Allow-Methods','GET,POST,PATCH,OPTIONS');if(url.pathname.startsWith('/api/'))await api(req,res,url);else staticFile(req,res,url)}catch(e){console.error(e);send(res,500,{error:'Erro interno do servidor'})}});
-(async()=>{await dbStore.init();setInterval(()=>{const now=Date.now();for(const [k,v] of sessions)if(v.expiresAt<now)sessions.delete(k);for(const [k,v] of rateBuckets)if(!v.some(t=>now-t<60000))rateBuckets.delete(k);for(const [k,v] of oauthStates)if(v.expiresAt<now)oauthStates.delete(k)},60000);server.listen(PORT,()=>console.log(`BetSocial v0.11 rodando em http://localhost:${PORT} [DB: ${dbStore.getMode()}]`))})();
+const server = http.createServer(async (req, res) => {
+  try {
+    const url = new URL(
+      req.url,
+      `http://${req.headers.host || 'localhost'}`
+    );
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
+    );
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET,POST,PATCH,OPTIONS'
+    );
+
+    if (url.pathname.startsWith('/api/')) {
+      await api(req, res, url);
+    } else {
+      staticFile(req, res, url);
+    }
+  } catch (e) {
+    console.error(e);
+    send(res, 500, { error: 'Erro interno do servidor' });
+  }
+});
+
+let initialized = false;
+
+async function initServer() {
+  if (initialized) return;
+
+  await dbStore.init();
+
+  setInterval(() => {
+    const now = Date.now();
+
+    for (const [k, v] of sessions) {
+      if (v.expiresAt < now) sessions.delete(k);
+    }
+
+    for (const [k, v] of rateBuckets) {
+      if (!v.some(t => now - t < 60000)) {
+        rateBuckets.delete(k);
+      }
+    }
+
+    for (const [k, v] of oauthStates) {
+      if (v.expiresAt < now) {
+        oauthStates.delete(k);
+      }
+    }
+  }, 60000);
+
+  initialized = true;
+}
+
+module.exports = {
+  server,
+  initServer
+};
+
+if (require.main === module) {
+  initServer().then(() => {
+    server.listen(PORT, () => {
+      console.log(
+        `BetSocial v0.11 rodando em http://localhost:${PORT} [DB: ${dbStore.getMode()}]`
+      );
+    });
+  });
+}

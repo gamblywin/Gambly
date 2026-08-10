@@ -20,3 +20,8 @@ alter table public.notifications enable row level security;
 alter table public.messages enable row level security;
 alter table public.follows enable row level security;
 alter table public.reset_tokens enable row level security;
+
+alter table public.users add column if not exists premium boolean default false;
+alter table public.posts add column if not exists liked_by jsonb default '[]'::jsonb;
+create table if not exists public.groups (id text primary key,name text not null,description text default '',owner_id text not null references public.users(id) on delete cascade,members jsonb default '[]'::jsonb,posts jsonb default '[]'::jsonb,created_at timestamptz default now());
+alter table public.groups enable row level security;

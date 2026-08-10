@@ -1,17 +1,17 @@
 {
-  "name": "betsocial-v0.11",
-  "version": "0.11.0",
+  "name": "gambly",
+  "version": "0.23.3",
   "private": true,
-  "description": "BetSocial Sprint 11 - Supabase-ready social network, production auth foundation and corrected BetSocial branding",
+  "description": "GAMBLY — rede social esportiva, Sprint 23.2: tema e autenticação corrigidos",
   "scripts": {
     "start": "node server.js",
-    "db:check": "node check-db.js"
+    "doctor": "node doctor.js",
+    "smoke": "node smoke-test.js",
+    "db:check": "node check-db.js",
+    "preflight": "node preflight.js"
   },
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {
-    "pg": "^8.16.3",
-    "dotenv": "^16.6.1"
-  }
+  "dependencies": {}
 }

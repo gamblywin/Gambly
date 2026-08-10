@@ -12,6 +12,29 @@ $("#nextStep").onclick=()=>toast("Próxima etapa: selecionar esporte e partida."
 $$("[data-action]").forEach(b=>b.onclick=()=>toast("Módulo "+b.dataset.action+" será conectado nas próximas sprints."));
 $("#globalSearch").onkeydown=e=>{if(e.key==="Enter"&&e.target.value.trim())toast("Pesquisando: "+e.target.value.trim())};
 document.onkeydown=e=>{if(e.key==="Escape")close()};
+/* Sprint 23.3 — interaction feedback */
+$$(".feed-tabs button").forEach(btn=>btn.addEventListener("click",()=>{
+  $$(".feed-tabs button").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  toast("Feed: "+btn.textContent.trim());
+}));
+$$(".main-nav .nav-item").forEach(item=>item.addEventListener("click",e=>{
+  if(item.tagName==="A") e.preventDefault();
+  $$(".main-nav .nav-item").forEach(x=>x.classList.remove("active"));
+  item.classList.add("active");
+  toast(item.textContent.trim().replace(/\s+NOVO|\s+PREMIUM/gi,"").trim());
+}));
+$$(".confidence-btn,.type-card,.match-option,.extra-option").forEach(el=>{
+  el.setAttribute("aria-pressed",el.classList.contains("selected")?"true":"false");
+  el.addEventListener("click",()=>{
+    requestAnimationFrame(()=>{
+      $$(".confidence-btn,.type-card,.match-option,.extra-option").forEach(x=>{
+        if(x.classList.contains("selected")) x.setAttribute("aria-pressed","true");
+      });
+    });
+  });
+});
+
 
 let wizardStep=1;
 const pages=$$(".wizard-page"), dots=$$(".wiz-dot"), labels=$$(".wiz-label"), fill=$("#progressFill");
@@ -129,14 +152,24 @@ function setupSearch(){
   input.onkeydown=e=>{if(e.key!=='Enter')return;const q=input.value.trim().toLowerCase();if(!q)return;const hits=[...document.querySelectorAll('.post-card,.story,.tipster,.live-game')].filter(x=>x.innerText.toLowerCase().includes(q)).length;toast(hits?`${hits} resultado(s) para “${input.value.trim()}”`:`Nenhum resultado para “${input.value.trim()}”`)};
 }
 
-function addProfileEditor(){
-  const btn=[...document.querySelectorAll('#profileModal button')].find(b=>b.textContent.trim()==='Editar perfil'); if(!btn)return;
-  btn.onclick=()=>{const p=BetSocialStore.get().profile;const name=prompt('Nome',p.name);if(name===null)return;const handle=prompt('Usuário',p.handle);if(handle===null)return;const bio=prompt('Bio',p.bio);if(bio===null)return;BetSocialStore.updateProfile({name:name.trim()||p.name,handle:handle.startsWith('@')?handle.trim():'@'+handle.trim(),bio:bio.trim()||p.bio});hydrateProfile();toast('Perfil atualizado')};
-}
 
 function setupNotifications(){
   const btn=document.querySelector('[data-action="notificações"]'); if(!btn)return;
   btn.addEventListener('click',()=>{BetSocialStore.markNotificationsRead();const dot=btn.querySelector('i');if(dot)dot.style.display='none'});
 }
 
-hydrateProfile();renderLocalPosts();setupSearch();addProfileEditor();setupNotifications();
+hydrateProfile();renderLocalPosts();setupSearch();setupNotifications();
+
+/* Sprint 17 — menu lateral responsivo */
+(()=>{
+  const btn=document.getElementById('mobileMenuBtn');
+  const closeBtn=document.getElementById('mobileMenuClose');
+  const sidebar=document.getElementById('mainSidebar');
+  const backdrop=document.getElementById('mobileMenuBackdrop');
+  if(!btn||!sidebar||!backdrop)return;
+  const closeMenu=()=>{sidebar.classList.remove('mobile-open');backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');btn.setAttribute('aria-expanded','false');document.body.classList.remove('menu-mobile-open')};
+  const openMenu=()=>{sidebar.classList.add('mobile-open');backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');btn.setAttribute('aria-expanded','true');document.body.classList.add('menu-mobile-open')};
+  btn.addEventListener('click',openMenu);closeBtn?.addEventListener('click',closeMenu);backdrop.addEventListener('click',closeMenu);
+  sidebar.querySelectorAll('.nav-item,.create-main').forEach(el=>el.addEventListener('click',()=>{if(window.innerWidth<=700)closeMenu()}));
+  window.addEventListener('resize',()=>{if(window.innerWidth>700)closeMenu()});
+})();

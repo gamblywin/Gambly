@@ -1,0 +1,4 @@
+const http=require('http');
+const base=process.env.SMOKE_URL||`http://localhost:${process.env.PORT||3000}`;
+async function req(path,opts={}){const u=new URL(path,base);return new Promise((resolve,reject)=>{const r=http.request(u,{method:opts.method||'GET',headers:{'Content-Type':'application/json',...(opts.headers||{})}},res=>{let d='';res.on('data',c=>d+=c);res.on('end',()=>resolve({status:res.statusCode,body:d}))});r.on('error',reject);if(opts.body)r.write(JSON.stringify(opts.body));r.end()})}
+(async()=>{const h=await req('/api/health');if(h.status!==200)throw new Error(`health ${h.status}`);const r=await req('/api/ready');if(r.status!==200)throw new Error(`ready ${r.status}`);console.log('Smoke test OK',JSON.parse(h.body),JSON.parse(r.body));})().catch(e=>{console.error('Smoke test FAILED:',e.message);process.exit(1)});

@@ -1,0 +1,57 @@
+/* BetSocial v0.7 */
+.backend-status.realtime{border-color:rgba(99,220,54,.45)!important;color:#57c932!important}.backend-status.realtime i{background:#63e238!important;box-shadow:0 0 8px rgba(99,226,56,.65)}
+.live-pulse{animation:livePulse 1.8s infinite}.empty-state{padding:24px;text-align:center;color:#7d8891;font-size:12px}@keyframes livePulse{50%{opacity:.55}}
+.auth-forgot{display:block;margin:-2px 0 12px auto;background:none;border:0;color:#78e33c;cursor:pointer;font:inherit;font-size:13px}.auth-forgot:hover{text-decoration:underline}
+.auth-form{display:flex;flex-direction:column;gap:12px}.auth-form label{display:flex;flex-direction:column;gap:6px;color:#d8dde0}.auth-form input{background:#101519;border:1px solid #293238;border-radius:10px;padding:12px;color:#fff}
+/* Sprint 13 — layout/auth state corrections */
+.layout.guest-mode .rightbar{display:none!important}
+.layout.authenticated-mode{grid-template-columns:var(--sidebar) minmax(520px,1fr) var(--rightbar)}
+.layout.authenticated-mode .rightbar{display:flex!important;grid-column:3;grid-row:1;position:sticky;top:94px;align-self:start;max-height:calc(100vh - 116px);overflow:auto}
+.rightbar[hidden]{display:none!important}
+@media(max-width:980px){.layout.authenticated-mode{grid-template-columns:var(--sidebar) minmax(0,1fr)}.layout.authenticated-mode .rightbar{display:none!important}}
+
+/* Sprint 14 — layout cleanup, independent sidebar scrolling and right profile visibility */
+.sidebar{
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:thin;
+  scrollbar-color:#34414d transparent;
+  padding-right:8px;
+}
+.sidebar::-webkit-scrollbar,.rightbar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-track,.rightbar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb,.rightbar::-webkit-scrollbar-thumb{background:#34414d;border-radius:999px}
+.rightbar{
+  min-width:0;
+  align-self:start;
+  max-height:calc(100vh - 116px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:thin;
+  scrollbar-color:#34414d transparent;
+  padding-right:6px;
+}
+.layout.authenticated-mode .rightbar{display:flex!important;grid-column:3;grid-row:1;position:sticky;top:94px}
+.profile-card{overflow:visible}
+.profile-card .cover{border-radius:18px 18px 0 0}
+.profile-body .avatar{position:relative;z-index:2}
+@media(max-width:980px){
+  .sidebar{overflow:visible;padding-right:0}
+  .rightbar{display:none!important;max-height:none;overflow:visible}
+}
+
+/* Sprint 18 — busca social, navegação móvel e acabamento */
+.search-results{position:absolute;z-index:1000;top:calc(100% + 8px);left:0;right:0;background:#101519;border:1px solid #293238;border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.35);padding:8px;max-height:420px;overflow:auto}
+.search-results .search-group{padding:6px 8px;color:#87929a;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.search-result{display:flex;align-items:center;gap:10px;width:100%;padding:9px;border:0;background:transparent;color:#fff;text-align:left;border-radius:10px;cursor:pointer}
+.search-result:hover{background:#192126}.search-result small{display:block;color:#7f8b93}.search-result strong{font-size:13px}
+.search-empty{padding:18px;color:#8a949b;text-align:center;font-size:12px}
+.mobile-bottom-nav{display:none}
+@media(max-width:700px){
+ .global-search{display:flex;flex:1;max-width:170px;min-width:0}.global-search input{min-width:0;font-size:12px}
+ .search-results{position:fixed;top:62px;left:10px;right:10px;max-height:55vh}
+ .mobile-bottom-nav{display:grid;position:fixed;z-index:1200;left:10px;right:10px;bottom:10px;grid-template-columns:repeat(5,1fr);padding:7px 5px;background:rgba(16,21,25,.96);border:1px solid #293238;border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.45);backdrop-filter:blur(14px)}
+ .mobile-bottom-item{border:0;background:transparent;color:#849097;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px;border-radius:12px;font:inherit;cursor:pointer}
+ .mobile-bottom-item span{font-size:18px;line-height:18px}.mobile-bottom-item small{font-size:9px}.mobile-bottom-item.active{color:#fff}.mobile-bottom-item.primary{color:#75df3b}.mobile-bottom-item.primary span{font-size:25px}
+ body{padding-bottom:82px}
+}

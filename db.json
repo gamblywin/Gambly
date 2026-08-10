@@ -10,19 +10,21 @@
       "followers": 1200,
       "following": 418,
       "posts": 84,
-      "winRate": 68
+      "winRate": 68,
+      "premium": false
     },
     {
       "id": "u_trader",
       "name": "TraderPro",
       "handle": "@traderpro",
       "email": "trader@betsocial.local",
-      "password": "demo123",
+      "password": "pbkdf2$120000$bb21c9879361d1cacb457047c766e4ca$df3dae777b462e7a2f099307b283f1a4689e5f2f3cffa4045383b358cfe285ab",
       "bio": "Trader esportivo",
       "followers": 8420,
       "following": 211,
       "posts": 421,
-      "winRate": 72
+      "winRate": 72,
+      "premium": true
     }
   ],
   "posts": [
@@ -56,13 +58,6 @@
   "messages": [],
   "comments": [],
   "follows": [],
-  "resetTokens": [
-    {
-      "id": "rt_d664c1056d98a0",
-      "userId": "u_matheus",
-      "hash": "fdfe53f0d6b90879015a3cb8873202b629665ba0bf2327c97a6bbebb5a03abcb",
-      "expiresAt": 1786227076096,
-      "used": false
-    }
-  ]
+  "resetTokens": [],
+  "groups": []
 }

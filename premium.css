@@ -1,0 +1,148 @@
+/* BetSocial — ajustes solicitados + Grupos Premium */
+.top-login-btn{background:var(--green)!important;color:#0b1106!important;border-radius:11px!important;padding:10px 18px!important;font-weight:800!important;min-height:40px;box-shadow:none;border:0}
+.top-login-btn:hover{filter:brightness(1.05)}
+.user-actions{display:flex;align-items:center;gap:7px}
+.user-actions .icon-btn{order:1}
+.user-actions .profile-chip{order:2;margin-left:1px}
+.user-actions .icon-btn + .icon-btn{margin-left:-2px}
+.s3-panel{right:110px!important}
+@media(max-width:700px){.s3-panel{right:72px!important}}
+.wallet-pill{display:none!important}
+.profile-chip{border:1px solid transparent}
+.profile-chip:hover{background:#18232d;border-color:var(--border)}
+.logout-menu{background:#3a171b!important;color:#ff6972!important;border:1px solid #743139!important;font-weight:800!important}
+.logout-menu:hover{background:#541d23!important;color:#fff!important}
+.premium-nav{width:100%;border:0;text-align:left;background:transparent;cursor:pointer;font-family:inherit}
+.premium-nav em{background:#253b20!important;color:var(--green)!important}
+.premium-groups-modal{width:min(1040px,100%);max-height:min(760px,92vh);display:flex;flex-direction:column}
+.premium-groups-layout{display:grid;grid-template-columns:280px 1fr;min-height:560px;overflow:hidden}
+.premium-groups-sidebar{background:#101820;border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.premium-badge{display:inline-flex;align-self:flex-start;padding:6px 9px;border:1px solid #496b38;background:#182719;color:var(--green);border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.08em}
+.premium-create-btn{background:var(--green);color:#0b1106;border-radius:10px;padding:11px 12px;font-weight:900;text-align:left}
+.premium-group-list{display:flex;flex-direction:column;gap:7px;overflow:auto;margin-top:2px}
+.premium-group-item{display:flex;flex-direction:column;gap:4px;width:100%;padding:11px;border:1px solid transparent;border-radius:11px;background:transparent;text-align:left;color:#d7dee5}
+.premium-group-item:hover,.premium-group-item.active{background:#19251c;border-color:#314a35}
+.premium-group-item b{font-size:11px}.premium-group-item small{font-size:8px;color:var(--muted)}
+.premium-group-main{min-width:0;display:flex;flex-direction:column;background:#141d26}
+.premium-empty{margin:auto;max-width:520px;padding:35px;text-align:center;color:#aeb8c2}.premium-empty h3{color:#fff;font-size:18px;margin:10px 0 7px}.premium-empty p{font-size:11px;line-height:1.6;margin-bottom:18px}.premium-empty-icon{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;margin:auto;background:#19251c;border:1px solid #365137;color:var(--green);font-size:26px}
+.premium-group-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}.premium-group-head>div:first-child{flex:1}.premium-group-head h3{font-size:16px}.premium-group-head p{font-size:10px;color:var(--muted);margin-top:5px}.premium-group-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.premium-group-actions button{font-size:9px;padding:8px 10px;border-radius:9px}.premium-group-actions .primary{background:var(--green);color:#0b1106;font-weight:900}
+.premium-group-meta{display:flex;gap:7px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border)}.premium-meta-chip{background:#101820;border:1px solid var(--border);padding:6px 8px;border-radius:8px;font-size:8px;color:#aeb8c2}.premium-feed{padding:15px 20px;overflow:auto;display:flex;flex-direction:column;gap:10px}.premium-bet{border:1px solid var(--border);background:#101820;border-radius:13px;padding:13px}.premium-bet-head{display:flex;justify-content:space-between;gap:10px}.premium-bet-head b{font-size:11px}.premium-bet-head small{font-size:8px;color:var(--muted)}.premium-bet p{font-size:10px;line-height:1.5;color:#cbd4dc;margin:9px 0}.premium-bet-info{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.premium-bet-info div{background:#17212a;border-radius:8px;padding:8px}.premium-bet-info small{display:block;font-size:7px;color:#687684;margin-bottom:3px}.premium-bet-info b{font-size:9px}.premium-platform{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #26323d}.premium-platform span{font-size:8px;color:var(--muted)}.premium-platform a{background:var(--green);color:#0b1106;border-radius:8px;padding:7px 10px;font-size:8px;font-weight:900}
+.premium-members{padding:14px 20px;border-top:1px solid var(--border);background:#101820}.premium-members h4{font-size:10px;margin-bottom:8px}.premium-member-row{display:flex;align-items:center;gap:8px;margin-top:7px}.premium-member-row>div{flex:1;min-width:0}.premium-member-row b{font-size:9px}.premium-member-row small{display:block;color:var(--muted);font-size:8px}.premium-add-row{display:flex;gap:7px;margin-top:10px}.premium-add-row input{flex:1;min-width:0;background:#0b1218;border:1px solid var(--border);color:#fff;border-radius:8px;padding:8px;font-size:9px}.premium-add-row button{background:#202c37;border-radius:8px;padding:8px 10px;font-size:9px;font-weight:800}
+.premium-form-modal{width:min(580px,100%)}.premium-form{padding:20px;display:flex;flex-direction:column;gap:14px}.premium-form label{font-size:10px;color:#b9c4ce;display:flex;flex-direction:column;gap:6px}.premium-form input,.premium-form textarea{background:#0f171e;border:1px solid var(--border);border-radius:9px;color:#fff;padding:10px;outline:0;font-size:10px}.premium-form input:focus,.premium-form textarea:focus{border-color:var(--green)}.premium-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.premium-form .modal-foot{margin:0 -20px -20px}
+@media(max-width:900px){.premium-groups-layout{grid-template-columns:1fr}.premium-groups-sidebar{border-right:0;border-bottom:1px solid var(--border);max-height:220px}.premium-group-list{display:grid;grid-template-columns:1fr 1fr}.premium-group-main{min-height:420px}}
+@media(max-width:650px){.topbar{gap:10px;padding:0 12px}.brand{min-width:auto}.global-search{display:none}.top-login-btn{padding:9px 12px!important}.profile-copy{display:none}.user-actions{gap:2px}.premium-group-list{grid-template-columns:1fr}.premium-form-grid{grid-template-columns:1fr}.premium-groups-layout{min-height:0}.premium-group-head{flex-direction:column}.premium-group-actions{justify-content:flex-start}}
+
+/* Sprint 24 — Comunidades + organização Premium */
+.community-nav{width:100%;font-family:inherit;background:transparent!important;color:inherit}
+.communities-modal{width:min(1040px,100%);max-height:min(760px,92vh);display:flex;flex-direction:column}
+.communities-layout{display:grid;grid-template-columns:280px 1fr;min-height:560px;overflow:hidden}
+.communities-sidebar{background:var(--surface);border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.community-search{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:0 11px;color:var(--muted)}
+.community-search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);padding:11px 0;font:inherit;font-size:11px}
+.community-create-btn{background:var(--green);color:#0b1106;border:0;border-radius:10px;padding:11px 12px;font-weight:900;text-align:left;cursor:pointer}
+.community-list{display:flex;flex-direction:column;gap:7px;overflow:auto}
+.community-item{display:flex;flex-direction:column;gap:4px;width:100%;padding:11px;border:1px solid transparent;border-radius:11px;background:transparent;text-align:left;color:var(--text);cursor:pointer}
+.community-item:hover,.community-item.active{background:color-mix(in srgb,var(--green) 9%,transparent);border-color:color-mix(in srgb,var(--green) 25%,var(--border))}
+.community-item b{font-size:11px}.community-item small{font-size:8px;color:var(--muted)}
+.community-main{min-width:0;display:flex;flex-direction:column;background:var(--card)}
+.community-empty{margin:auto;max-width:520px;padding:35px;text-align:center;color:var(--muted)}.community-empty h3{color:var(--text);font-size:18px;margin:10px 0 7px}.community-empty p{font-size:11px;line-height:1.6}.community-empty-icon{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;margin:auto;background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid color-mix(in srgb,var(--green) 25%,var(--border));color:var(--green);font-size:26px}
+.community-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.community-kicker{font-size:8px;font-weight:900;letter-spacing:.12em;color:var(--green);margin-bottom:5px}.community-head h3{font-size:18px}.community-head p{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.5}
+.community-meta{display:flex;gap:7px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--border)}.community-meta span{background:var(--card2);border:1px solid var(--border);padding:6px 8px;border-radius:8px;font-size:8px;color:var(--muted)}
+.community-composer{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:8px}.community-composer textarea{flex:1;resize:vertical;border:1px solid var(--border);border-radius:10px;background:var(--card2);color:var(--text);padding:10px;font:inherit;font-size:10px}.community-composer button,.premium-settings button{border:0;border-radius:9px;background:var(--green);color:#0b1106;font-weight:900;padding:8px 12px;cursor:pointer}
+.community-feed{padding:15px 20px;overflow:auto;display:flex;flex-direction:column;gap:10px}.community-post{border:1px solid var(--border);background:var(--card2);border-radius:13px;padding:13px}.community-post-head{display:flex;align-items:center;gap:8px}.community-post-head b{font-size:10px}.community-post-head small{display:block;color:var(--muted);font-size:8px;margin-top:2px}.community-post p{font-size:10px;line-height:1.55;margin:9px 0 0;color:var(--text)}
+.community-admin{margin:0 20px 16px;padding:12px;border:1px dashed var(--border);border-radius:10px;display:flex;flex-direction:column;gap:4px}.community-admin b{font-size:10px}.community-admin small{font-size:8px;color:var(--muted)}
+.community-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.community-settings-grid label{display:flex;flex-direction:column;gap:6px}.community-settings-grid select,.premium-settings-controls select{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px;font:inherit;font-size:10px}
+.premium-settings{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px}.premium-settings>div:first-child{display:flex;flex-direction:column;gap:3px}.premium-settings b{font-size:10px}.premium-settings small{font-size:8px;color:var(--muted)}.premium-settings-controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.premium-settings-controls select{min-width:150px}
+html[data-theme="light"] .premium-groups-sidebar,html[data-theme="light"] .premium-group-main{background:var(--card)}
+html[data-theme="light"] .premium-group-item{color:var(--text)}
+html[data-theme="light"] .premium-group-item:hover,html[data-theme="light"] .premium-group-item.active{background:#edf6e9;border-color:#d5e8cd}
+html[data-theme="light"] .premium-empty{color:var(--muted)}html[data-theme="light"] .premium-empty h3{color:var(--text)}
+html[data-theme="light"] .premium-empty-icon{background:#edf6e9;border-color:#d5e8cd}
+html[data-theme="light"] .premium-meta-chip{background:#f1f5f2;color:#617066;border-color:var(--border)}
+html[data-theme="light"] .premium-bet{background:#f7faf7;border-color:var(--border)}
+html[data-theme="light"] .premium-bet p{color:#39463e}
+@media(max-width:760px){.communities-layout{grid-template-columns:1fr;min-height:0}.communities-sidebar{border-right:0;border-bottom:1px solid var(--border);max-height:310px}.community-main{min-height:460px}.community-settings-grid{grid-template-columns:1fr}.premium-settings{align-items:flex-start;flex-direction:column}.premium-settings-controls{width:100%;justify-content:flex-start}.premium-settings-controls select{flex:1;min-width:0}}
+
+.community-requests{margin:12px 20px 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}.community-requests>b{display:block;font-size:10px;margin-bottom:7px}.community-requests>div{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--border);font-size:9px}.community-requests button{border:0;border-radius:7px;background:var(--green);color:#0b1106;font-size:8px;font-weight:900;padding:6px 8px;cursor:pointer}
+
+.premium-requests{margin:12px 20px 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}.premium-requests>b{display:block;font-size:10px;margin-bottom:7px}.premium-requests>div{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--border);font-size:9px}.premium-requests button{border:0;border-radius:7px;background:var(--green);color:#0b1106;font-size:8px;font-weight:900;padding:6px 8px;cursor:pointer}
+
+/* Sprint 24.1 — correção de tema em Comunidades e formulários Premium */
+/* Tema escuro: garante que a área de Comunidades acompanhe o restante da interface. */
+html:not([data-theme="light"]) .communities-modal,
+html:not([data-theme="light"]) .community-main,
+html:not([data-theme="light"]) .communities-sidebar,
+html:not([data-theme="light"]) #createCommunityModal .modal,
+html:not([data-theme="light"]) #createGroupModal .modal,
+html:not([data-theme="light"]) #shareBetModal .modal{
+  background:var(--card);
+  color:var(--text);
+}
+html:not([data-theme="light"]) .community-main{background:var(--card)}
+html:not([data-theme="light"]) .community-post,
+html:not([data-theme="light"]) .community-meta span,
+html:not([data-theme="light"]) .community-composer textarea,
+html:not([data-theme="light"]) .community-requests,
+html:not([data-theme="light"]) .premium-form input,
+html:not([data-theme="light"]) .premium-form textarea,
+html:not([data-theme="light"]) .premium-form select{
+  background:var(--card2);
+  color:var(--text);
+}
+html:not([data-theme="light"]) .premium-form label{color:var(--text)}
+html:not([data-theme="light"]) .premium-form input::placeholder,
+html:not([data-theme="light"]) .premium-form textarea::placeholder{color:var(--muted)}
+
+/* Tema claro: campos dos formulários deixam de herdar o visual escuro Premium. */
+html[data-theme="light"] #createCommunityModal .modal,
+html[data-theme="light"] #createGroupModal .modal,
+html[data-theme="light"] #shareBetModal .modal,
+html[data-theme="light"] .communities-modal{
+  background:var(--card);
+  color:var(--text);
+}
+html[data-theme="light"] .premium-form label{color:var(--text)}
+html[data-theme="light"] .premium-form input,
+html[data-theme="light"] .premium-form textarea,
+html[data-theme="light"] .premium-form select{
+  background:#f2f6f3;
+  color:var(--text);
+  border-color:var(--border);
+}
+html[data-theme="light"] .premium-form input::placeholder,
+html[data-theme="light"] .premium-form textarea::placeholder{color:#87948c}
+html[data-theme="light"] .premium-form input:focus,
+html[data-theme="light"] .premium-form textarea:focus,
+html[data-theme="light"] .premium-form select:focus{background:#fff;border-color:var(--green)}
+
+/* Área de Comunidades no tema claro. */
+html[data-theme="light"] .communities-sidebar{background:var(--surface)}
+html[data-theme="light"] .community-main{background:var(--card)}
+html[data-theme="light"] .community-post,
+html[data-theme="light"] .community-meta span,
+html[data-theme="light"] .community-composer textarea,
+html[data-theme="light"] .community-requests{background:var(--card2);color:var(--text)}
+html[data-theme="light"] .community-composer textarea::placeholder{color:#87948c}
+
+
+/* Sprint 24.2 — Comunidades: botão da navegação e tema escuro sem vazamento */
+html:not([data-theme="light"]) .community-nav,
+html:not([data-theme="light"]) .community-nav:hover,
+html:not([data-theme="light"]) .community-nav:focus,
+html:not([data-theme="light"]) .community-nav:active{
+  background:transparent!important;
+  color:#aab4c0!important;
+}
+html:not([data-theme="light"]) .community-nav:hover{
+  background:var(--card)!important;
+  color:#fff!important;
+}
+html:not([data-theme="light"]) .communities-modal,
+html:not([data-theme="light"]) .communities-modal .modal-head,
+html:not([data-theme="light"]) .communities-layout,
+html:not([data-theme="light"]) .communities-sidebar,
+html:not([data-theme="light"]) .community-main{
+  background:var(--card)!important;
+  color:var(--text)!important;
+}
+html:not([data-theme="light"]) .communities-sidebar{background:var(--surface)!important}

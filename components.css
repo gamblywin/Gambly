@@ -7,3 +7,26 @@
 /* Sprint 4 */
 .local-post{animation:postIn .24s ease both}.local-like.liked{font-weight:800}.local-like.liked{color:var(--accent,#6d5dfc)}
 @keyframes postIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Sprint 12 — perfil e avatar */
+.avatar.has-image{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:transparent!important}
+.avatar-xl{width:96px;height:96px;font-size:28px}
+.avatar-upload{position:relative;border:0;background:transparent;padding:0;cursor:pointer}
+.avatar-upload .avatar{display:grid;place-items:center}
+.avatar-camera{position:absolute;right:0;bottom:2px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:#0b1106;font-weight:900;border:3px solid var(--surface)}
+.avatar-editor{display:flex;flex-direction:column;align-items:center;gap:7px;padding:8px 0 16px}
+.avatar-editor small{color:var(--muted);font-size:9px}
+.text-btn.danger{color:#ef7a83;font-size:9px}
+.edit-profile-form{display:grid;gap:13px;padding:0 22px 22px}
+.edit-profile-form label{display:grid;gap:6px;color:#cbd4dc;font-size:10px;font-weight:700}
+.edit-profile-form input,.edit-profile-form textarea{width:100%;box-sizing:border-box;background:#111922;color:#fff;border:1px solid var(--border);border-radius:9px;padding:10px;font:inherit;resize:vertical}
+.edit-profile-form input:focus,.edit-profile-form textarea:focus{outline:1px solid var(--green);border-color:var(--green)}
+.edit-profile-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:4px}
+.profile-modal .profile-hero{height:116px}
+.profile-modal .profile-detail .avatar{position:relative;z-index:2;box-shadow:0 0 0 2px #141d26}
+
+.layout.guest-mode{grid-template-columns:var(--sidebar) minmax(520px,1fr)}
+.layout.guest-mode .rightbar{display:none!important}
+.layout.authenticated-mode{grid-template-columns:var(--sidebar) minmax(520px,1fr) var(--rightbar)}
+.layout.authenticated-mode .rightbar{display:flex;grid-column:3;grid-row:1}
+@media(max-width:980px){.layout.guest-mode,.layout.authenticated-mode{grid-template-columns:var(--sidebar) minmax(0,1fr)}.layout.authenticated-mode .rightbar{display:none}}

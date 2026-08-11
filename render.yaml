@@ -1,10 +1,10 @@
 services:
   - type: web
-    name: gambly
+    name: gambly-api
     runtime: node
-    plan: starter
-    buildCommand: npm ci
-    startCommand: npm start
+    plan: free
+    buildCommand: npm install
+    startCommand: node api/server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -15,15 +15,15 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: GOOGLE_CLIENT_ID
+      - key: GAMBLY_ADMIN_TOKEN
         sync: false
-      - key: GOOGLE_CLIENT_SECRET
+      - key: SPORTS_PROVIDER
+        value: api-football
+      - key: API_FOOTBALL_KEY
         sync: false
-      - key: GOOGLE_REDIRECT_URI
-        sync: false
-      - key: RESEND_API_KEY
-        sync: false
-      - key: EMAIL_FROM
-        sync: false
-      - key: SPORTMONKS_API_TOKEN
-        sync: false
+      - key: SPORTS_SYNC_DAYS
+        value: "2"
+      - key: SPORTS_SYNC_TIMEOUT_MS
+        value: "10000"
+      - key: PORT
+        value: "4000"

@@ -40,7 +40,7 @@ As demais podem ser adicionadas depois:
 - `GOOGLE_REDIRECT_URI`
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
-- `SPORTMONKS_API_TOKEN`
+- `API_FOOTBALL_KEY`
 
 ## 5. Primeiro teste
 Após o deploy, abra:
@@ -71,7 +71,7 @@ Em produção, este endpoint deve indicar `database: supabase` e `ok: true`.
 ## 7. Só depois
 - Google OAuth.
 - E-mail de recuperação.
-- Sportmonks.
+- API-Football.
 - Domínio próprio.
 - DNS/HTTPS.
 - Analytics e monitoramento.

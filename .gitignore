@@ -7,3 +7,9 @@ out/
 npm-debug.log*
 .DS_Store
 api/db.production.json
+
+# Arquivos locais/gerados
+*.zip
+*.tsbuildinfo
+.next/
+node_modules/

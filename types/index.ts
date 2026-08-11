@@ -16,6 +16,8 @@ export type Post = {
   id: string;
   authorId?: string;
   author?: User;
+  handle?: string;
+  authorAvatar?: string | null;
   title?: string;
   text?: string;
   type?: string;

@@ -1,9 +1,10 @@
 import type { NextConfig } from 'next';
 
-const apiOrigin = process.env.API_ORIGIN || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:4000');
+const isProduction = process.env.NODE_ENV === 'production';
+const apiOrigin = process.env.API_ORIGIN || (process.env.VERCEL === '1' && isProduction ? '' : 'http://localhost:4000');
 
-if (process.env.VERCEL === '1' && process.env.NODE_ENV === 'production' && !apiOrigin) {
-  throw new Error('API_ORIGIN não configurada. No Vercel, defina API_ORIGIN com a URL pública do backend GAMBLY (Render).');
+if (process.env.VERCEL === '1' && isProduction && !apiOrigin) {
+  throw new Error('API_ORIGIN não configurada. Defina API_ORIGIN com a URL pública do backend GAMBLY (Render).');
 }
 
 /** @type {import('next').NextConfig} */

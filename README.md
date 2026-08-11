@@ -7,11 +7,14 @@ Esta versão fecha o MVP definido pela equipe: cadastro, login, perfil, feed, pa
 
 ```bash
 npm install
-npm run dev
+npm start
 ```
 
-Web: http://localhost:3000  
-API: http://localhost:4000 (local) / configure `API_ORIGIN` in Vercel for production
+O `npm start` faz o build automaticamente e inicia o frontend em http://localhost:3000 e a API em http://localhost:4000.
+
+Para desenvolvimento com hot reload, use `npm run dev`.
+
+Em produção, o frontend Next.js deve usar `API_ORIGIN` apontando para o backend do Render.
 
 Verificações:
 

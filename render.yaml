@@ -25,5 +25,3 @@ services:
         value: "2"
       - key: SPORTS_SYNC_TIMEOUT_MS
         value: "10000"
-      - key: PORT
-        value: "4000"

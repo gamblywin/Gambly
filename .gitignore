@@ -8,8 +8,6 @@ npm-debug.log*
 .DS_Store
 api/db.production.json
 
-# Arquivos locais/gerados
+# Local build artifacts
 *.zip
 *.tsbuildinfo
-.next/
-node_modules/

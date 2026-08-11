@@ -8,7 +8,7 @@ export function PostCard({post}:{post:Post}){
  const author=post.author?.name||'Usuário GAMBLY'; const initials=author.split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();
  async function like(){if(busy)return;setBusy(true);try{const d=await toggleLike(post.id);setLiked(d.liked);setLikes(d.likes)}catch{}finally{setBusy(false)}}
  return <article className="post card">
-  <div className="post-header"><div className="avatar">{(post as any).authorAvatar?<img src={(post as any).authorAvatar} alt=""/>:initials}</div><div className="post-author"><b>{author}</b><small>{post.handle||'@gambly'} · agora</small></div><button className="more-btn">•••</button></div>
+  <div className="post-header"><div className="avatar">{(post as any).authorAvatar?<img src={(post as any).authorAvatar} alt=""/>:initials}</div><div className="post-author"><b>{author}</b><small>{post.author?.handle||'@gambly'} · agora</small></div><button className="more-btn">•••</button></div>
   {post.title&&post.type!=='Palpite'&&<div className="post-type-label">{post.type==='Imagem'?'📷 Foto':post.type==='Jogo'?'⚽ Jogo':'📊 Análise'}</div>}
   {post.text&&<p className="post-text">{post.text}</p>}
   {post.image&&<div className="post-image-wrap"><img src={post.image} alt={post.title||'Imagem publicada no GAMBLY'} className="post-image"/></div>}

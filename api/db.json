@@ -25,6 +25,19 @@
       "posts": 421,
       "winRate": 72,
       "premium": true
+    },
+    {
+      "id": "u_14ad18b13779c2",
+      "name": "Teste Local",
+      "handle": "@testelocal",
+      "email": "teste.local@example.com",
+      "password": "pbkdf2$120000$efe708adb496f49f61e73dcae5328d79$85099fabc05c4050b6e574ff58a73f2207a49a35ae5f05a7dac86c947580670b",
+      "bio": "Novo membro da comunidade GAMBLY.",
+      "followers": 0,
+      "following": 0,
+      "posts": 0,
+      "winRate": 0,
+      "premium": false
     }
   ],
   "posts": [
@@ -60,6 +73,7 @@
   "follows": [],
   "resetTokens": [],
   "groups": [],
+  "communities": [],
   "sports": [
     {
       "id": "sp_football",

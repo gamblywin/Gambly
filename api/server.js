@@ -94,7 +94,7 @@ function matchLocalEvent(db,fixture){
 async function syncSportsAndSettle(){
   const db=await dbStore.read(); db.sports=db.sports||[]; db.leagues=db.leagues||[]; db.teams=db.teams||[]; db.events=db.events||[]; db.predictions=db.predictions||[]; db.predictionSlips=db.predictionSlips||[]; db.notifications=db.notifications||[];
   const days=Math.max(1,Math.min(7,Number(process.env.SPORTS_SYNC_DAYS||2)));
-  const start=new Date(Date.now()-86400000), end=new Date(Date.now()+days*86400000);
+  const start=new Date(); start.setHours(0,0,0,0); const end=new Date(Date.now()+days*86400000);
   const {provider,fixtures}=await fetchProviderFixtures({token:process.env.API_FOOTBALL_KEY,startDate:start,endDate:end,timeoutMs:Number(process.env.SPORTS_SYNC_TIMEOUT_MS||10000)});
   let created=0,updated=0,settled=0,unresolved=0;
   for(const f of fixtures){

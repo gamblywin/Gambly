@@ -7,7 +7,23 @@ const norm=db=>({...empty,...(db||{}),follows:(db&&db.follows)||[],resetTokens:(
 const readJson=()=>norm(JSON.parse(fs.readFileSync(DB_FILE,'utf8')));
 const writeJson=db=>fs.writeFileSync(DB_FILE,JSON.stringify(norm(db),null,2));
 function headers(){return {'apikey':supa.key,'Authorization':`Bearer ${supa.key}`,'Content-Type':'application/json'}}
-async function rest(table,params=''){const r=await fetch(`${supa.url}/rest/v1/${table}${params}`,{headers:headers()});if(!r.ok)throw new Error(`${table}: ${r.status} ${await r.text()}`);return r.json()}
+async function rest(table,params=''){
+  const pageSize=1000;
+  let offset=0;
+  const all=[];
+  while(true){
+    const sep=params.includes('?')?'&':'?';
+    const query=`${params}${sep}limit=${pageSize}&offset=${offset}`;
+    const r=await fetch(`${supa.url}/rest/v1/${table}${query}`,{headers:headers()});
+    if(!r.ok)throw new Error(`${table}: ${r.status} ${await r.text()}`);
+    const rows=await r.json();
+    if(!Array.isArray(rows))return rows;
+    all.push(...rows);
+    if(rows.length<pageSize)break;
+    offset+=pageSize;
+  }
+  return all;
+}
 async function upsert(table,rows){if(!rows.length)return;const r=await fetch(`${supa.url}/rest/v1/${table}`,{method:'POST',headers:{...headers(),'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(rows)});if(!r.ok)throw new Error(`${table} upsert: ${r.status} ${await r.text()}`)}
 async function del(table,id){const r=await fetch(`${supa.url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,{method:'DELETE',headers:headers()});if(!r.ok)throw new Error(`${table} delete: ${r.status} ${await r.text()}`)}
 const maps={

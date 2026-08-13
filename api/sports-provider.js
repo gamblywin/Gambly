@@ -91,14 +91,7 @@ async function fetchApiFootballFixtures({token,startDate,endDate,timeoutMs=10000
     base.push(...(Array.isArray(p?.response)?p.response:[]));
   }
   // Enriquecemos somente partidas live/finalizadas, agrupando até 20 IDs por chamada.
-  const ids=base.filter(f=>['1H','HT','2H','ET','BT','P','LIVE','FT','AET','PEN'].includes(String(f?.fixture?.status?.short||'').toUpperCase())).map(f=>f?.fixture?.id).filter(Boolean);
-  const enriched=new Map();
-  for(let i=0;i<ids.length;i+=20){
-    const chunk=ids.slice(i,i+20); if(!chunk.length)continue;
-    const p=await apiGet(`/fixtures?ids=${chunk.join('-')}`,token,timeoutMs);
-    for(const f of (p?.response||[]))enriched.set(String(f?.fixture?.id),f);
-  }
-  return base.map(f=>normalizeFixture(enriched.get(String(f?.fixture?.id))||f)).filter(x=>x.providerEventId&&x.homeName&&x.awayName);
+  return base.map(f=>normalizeFixture(f)).filter(x=>x.providerEventId&&x.homeName&&x.awayName);
 }
 
 async function fetchApiFootballFixturePlayers({token,fixtureId,timeoutMs=10000}={}){

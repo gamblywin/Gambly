@@ -1,0 +1,63 @@
+{
+  "users": [
+    {
+      "id": "u_matheus",
+      "name": "Matheus",
+      "handle": "@matheus",
+      "email": "matheus@betsocial.local",
+      "password": "pbkdf2$120000$28b896bc7241f5ae1c7e4d352655a4b8$b0ea448a6606ef7b376c1a54a886cc0463aca76a921e7ffe43b41dc07ba6bc4f",
+      "bio": "Análises de futebol, gestão de banca e acompanhamento de resultados. 📈⚽",
+      "followers": 1200,
+      "following": 418,
+      "posts": 84,
+      "winRate": 68,
+      "premium": false
+    },
+    {
+      "id": "u_trader",
+      "name": "TraderPro",
+      "handle": "@traderpro",
+      "email": "trader@betsocial.local",
+      "password": "pbkdf2$120000$bb21c9879361d1cacb457047c766e4ca$df3dae777b462e7a2f099307b283f1a4689e5f2f3cffa4045383b358cfe285ab",
+      "bio": "Trader esportivo",
+      "followers": 8420,
+      "following": 211,
+      "posts": 421,
+      "winRate": 72,
+      "premium": true
+    }
+  ],
+  "posts": [
+    {
+      "id": "seed_1",
+      "authorId": "u_trader",
+      "author": "TraderPro",
+      "handle": "@traderpro",
+      "type": "Análise",
+      "title": "Flamengo x Palmeiras",
+      "text": "Minha leitura está em gols: acredito em um jogo aberto e vejo valor no mercado abaixo.",
+      "market": "Mais de 2.5 gols",
+      "odd": 2.18,
+      "stake": 3,
+      "confidence": 9,
+      "likes": 254,
+      "comments": 38,
+      "createdAt": "2026-08-08T17:55:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n_1",
+      "userId": "u_matheus",
+      "text": "TraderPro curtiu sua publicação.",
+      "kind": "interaction",
+      "read": false,
+      "createdAt": "2026-08-08T18:00:00.000Z"
+    }
+  ],
+  "messages": [],
+  "comments": [],
+  "follows": [],
+  "resetTokens": [],
+  "groups": []
+}

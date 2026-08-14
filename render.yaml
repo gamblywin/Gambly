@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: gambly-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node api/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GAMBLY_ADMIN_TOKEN
+        sync: false
+      - key: SPORTS_PROVIDER
+        value: api-football
+      - key: API_FOOTBALL_KEY
+        sync: false
+      - key: SPORTS_SYNC_DAYS
+        value: "2"
+      - key: SPORTS_SYNC_TIMEOUT_MS
+        value: "10000"

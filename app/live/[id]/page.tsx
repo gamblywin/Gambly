@@ -1,0 +1,28 @@
+'use client';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { getEvent, getEventPlayers } from '@/lib/api';
+import type { PlayerStat } from '@/types';
+
+const statLabels: Record<string,string>={possession:'Posse',totalShots:'Finalizações',shotsOnTarget:'No alvo',corners:'Escanteios',fouls:'Faltas',yellowCards:'Cartões amarelos',redCards:'Cartões vermelhos',offsides:'Impedimentos'};
+function val(v:any){return v==null||v===''?'—':String(v)}
+function timeLabel(event:any){if(event.status==='live')return event.minute!=null?`${event.minute}'`:'AO VIVO';if(event.status==='finished')return 'ENCERRADO';return new Date(event.startTime).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+export default function MatchPage(){
+ const {id}=useParams<{id:string}>(); const [event,setEvent]=useState<any|null>(null),[players,setPlayers]=useState<PlayerStat[]>([]),[tab,setTab]=useState('summary'),[loading,setLoading]=useState(true),[error,setError]=useState('');
+ const load=async()=>{try{setError('');const d=await getEvent(id);setEvent(d.event);if(d.event.status==='live'||d.event.status==='finished'){const p=await getEventPlayers(id);setPlayers(p.players||[])}}catch(e){setError(e instanceof Error?e.message:'Partida não encontrada.')}finally{setLoading(false)}};
+ useEffect(()=>{load();const timer=window.setInterval(()=>{if(event?.status==='live')load()},30000);return()=>window.clearInterval(timer)},[id,event?.status]);
+ const stats=event?.stats||{home:{},away:{}}; const events=Array.isArray(event?.events)?event.events:[]; const playerRows=useMemo(()=>players.slice().sort((a,b)=>(b.minutes||0)-(a.minutes||0)),[players]);
+ if(loading)return <div className="card match-loading">Carregando partida...</div>;
+ if(error||!event)return <div className="card live-empty"><h2>Partida indisponível</h2><p>{error||'Evento não encontrado.'}</p></div>;
+ return <section className="match-page">
+  <button className="back-link" onClick={()=>history.back()}>← Voltar para Ao Vivo</button>
+  <div className="match-hero card"><div className="match-league"><span>{event.country||'Internacional'}</span><b>{event.league||'Futebol'}</b></div><div className="match-scoreboard"><div><span className="team-emblem">{event.homeTeam?.slice(0,2).toUpperCase()}</span><h2>{event.homeTeam}</h2></div><div className="score-main"><span className={event.status==='live'?'live-pill':'match-status'}>{event.status==='live'?'● AO VIVO':event.status==='finished'?'ENCERRADO':'AGENDADO'}</span><strong>{event.homeScore??0} <i>×</i> {event.awayScore??0}</strong><small>{timeLabel(event)}</small></div><div><span className="team-emblem">{event.awayTeam?.slice(0,2).toUpperCase()}</span><h2>{event.awayTeam}</h2></div></div></div>
+  <div className="match-tabs card">{[['summary','Resumo'],['stats','Estatísticas'],['events','Eventos'],['players','Jogadores']].map(([k,l])=><button className={tab===k?'active':''} onClick={()=>setTab(k)} key={k}>{l}</button>)}</div>
+  {tab==='summary'&&<div className="match-grid"><div className="card detail-card"><h3>Placar</h3><div className="big-score">{event.homeScore??0} <span>×</span> {event.awayScore??0}</div><p>{event.halfTimeHomeScore!=null?`Intervalo: ${event.halfTimeHomeScore} × ${event.halfTimeAwayScore}`:'Sem placar de intervalo disponível.'}</p></div><div className="card detail-card"><h3>Últimos eventos</h3>{events.length?<div className="event-list">{events.slice().reverse().slice(0,8).map((x:any,i:number
+)=><div key={i}><b>{x.minute!=null?`${x.minute}'`:'—'}</b><span>{x.type||'Evento'} · {x.detail||'Atualização'}</span></div>)}</div>:<p>Eventos da partida ainda não disponíveis.</p>}</div></div>}
+  {tab==='stats'&&<div className="card detail-card"><h3>Estatísticas da partida</h3><div className="stats-table"><div className="stats-head"><b>{event.homeTeam}</b><span>ESTATÍSTICA</span><b>{event.awayTeam}</b></div>{Object.keys(statLabels).map(k=><div className="stats-row" key={k}><b>{val(stats.home?.[k])}</b><span>{statLabels[k]}</span><b>{val(stats.away?.[k])}</b></div>)}</div></div>}
+  {tab==='events'&&<div className="card detail-card"><h3>Linha do tempo</h3>{events.length?<div className="event-timeline">{events.map((x:any,i:number
+)=><div key={i} className="timeline-item"><b>{x.minute!=null?`${x.minute}'`:'—'}</b><div><strong>{x.type||'Evento'}</strong><span>{x.detail||'Atualização'}</span></div></div>)}</div>:<p>Nenhum evento disponível.</p>}</div>}
+  {tab==='players'&&<div className="card detail-card"><div className="section-head"><div><h3>Jogadores</h3><small>Estatísticas fornecidas pelo provedor quando disponíveis.</small></div></div>{playerRows.length?<div className="players-table"><div className="player-row player-head"><span>Jogador</span><b>G</b><b>A</b><b>Ch</b><b>Alvo</b><b>Pass</b><b>Cart</b></div>{playerRows.map(p=><div className="player-row" key={`${p.id}-${p.name}`}><span><strong>{p.name}</strong><small>{p.minutes??0} min</small></span><b>{p.goals??0}</b><b>{p.assists??0}</b><b>{p.shots??0}</b><b>{p.shotsOnTarget??0}</b><b>{p.passes??0}</b><b>{(p.yellowCards||0)+(p.redCards||0)}</b></div>)}</div>:<p>Os jogadores desta partida ainda não estão disponíveis.</p>}</div>}
+ </section>
+}

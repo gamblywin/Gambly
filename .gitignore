@@ -11,3 +11,6 @@ api/db.production.json
 # Local build artifacts
 *.zip
 *.tsbuildinfo
+
+api/db.json
+api/db.js.bak

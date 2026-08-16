@@ -278,7 +278,7 @@ async function api(req,res,url){
     if(sportFilter)games=games.filter(g=>g.sport.toLowerCase()===sportFilter || (sportFilter==='football'&&normalizeTeamName(g.sport)==='futebol'));
     const order={live:0,scheduled:1,finished:2,cancelled:3};
     games.sort((a,b)=>url.pathname==='/api/sports/feed'?(sportsPriority(b)-sportsPriority(a)):((order[a.status]??9)-(order[b.status]??9)||sportsPriority(b)-sportsPriority(a)));
-    if(url.pathname==='/api/sports/feed' && !search && !country && !leagueFilter && !sportFilter && statusFilter==='all') games=games.slice(0,12);
+    if(url.pathname==='/api/sports/feed' && !search && !country && !leagueFilter && !sportFilter && statusFilter==='all') games=games.slice(0,6);
     return send(res,200,{source:sync?.provider||'gambly-db',games,total:games.length,liveCount:(dbLive.events||[]).filter(e=>e.status==='live').length,updatedAt:new Date().toISOString(),sync});
   }
 

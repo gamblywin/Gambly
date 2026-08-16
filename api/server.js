@@ -750,4 +750,21 @@ const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,`h
   if(url.pathname.startsWith('/api/'))await api(req,res,url);else staticFile(req,res,url)}catch(e){console.error(e);send(res,500,{error:'Erro interno do servidor'})}});
 process.on('SIGTERM',()=>server.close(()=>process.exit(0)));
 process.on('SIGINT',()=>server.close(()=>process.exit(0)));
-(async()=>{await dbStore.init();setInterval(()=>{const now=Date.now();for(const [k,v] of sessions)if(v.expiresAt<now)sessions.delete(k);for(const [k,v] of rateBuckets)if(!v.some(t=>now-t<60000))rateBuckets.delete(k);for(const [k,v] of oauthStates)if(v.expiresAt<now)oauthStates.delete(k)},60000);server.listen(PORT,HOST,()=>console.log(`GAMBLY v0.29 rodando em http://${LOCAL_HOST}:${PORT} (escutando em ${HOST}:${PORT}) [DB: ${dbStore.getMode()}]`))})();
+async function initServer(){
+  await dbStore.init();
+}
+
+if (require.main === module) {
+  (async()=>{
+    await initServer();
+    setInterval(()=>{
+      const now=Date.now();
+      for(const [k,v] of sessions) if(v.expiresAt<now) sessions.delete(k);
+      for(const [k,v] of rateBuckets) if(!v.some(t=>now-t<60000)) rateBuckets.delete(k);
+      for(const [k,v] of oauthStates) if(v.expiresAt<now) oauthStates.delete(k);
+    },60000);
+    server.listen(PORT,HOST,()=>console.log(`GAMBLY v0.29 rodando em http://${LOCAL_HOST}:${PORT} (escutando em ${HOST}:${PORT}) [DB: ${dbStore.getMode()}]`));
+  })();
+}
+
+module.exports = { server, initServer };

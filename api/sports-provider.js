@@ -62,13 +62,13 @@ function normalizeFixture(f){
   const homeScore=n(f?.goals?.home), awayScore=n(f?.goals?.away);
   const stats=normalizeStatsWithTeams(f?.statistics,homeId,awayId);
   const events=(Array.isArray(f?.events)?f.events:[]).map(e=>({
-    type:String(e?.type||''),detail:String(e?.detail||''),minute:n(e?.time?.elapsed),extra:n(e?.time?.extra),teamId:e?.team?.id??null
+    type:String(e?.type||''),detail:String(e?.detail||''),minute:(e?.time?.elapsed!=null?Number(e.time.elapsed):null),extra:n(e?.time?.extra),teamId:e?.team?.id??null
   }));
   const ht=f?.score?.halftime||{};
   return {
     provider:'api-football',providerEventId:String(f?.fixture?.id||''),providerVersion:'api-football-v3',
-    startTime:f?.fixture?.date||null,status:cancelled?'cancelled':finished?'finished':live?'live':'scheduled',
-    homeName:f?.teams?.home?.name||'',awayName:f?.teams?.away?.name||'',
+    startTime:f?.fixture?.date||null,minute:n(f?.fixture?.status?.elapsed),status:cancelled?'cancelled':finished?'finished':live?'live':'scheduled',
+    homeName:f?.teams?.home?.name||'',homeShortName:f?.teams?.home?.name?.slice(0,24)||'',homeLogo:f?.teams?.home?.logo||'',homeTeamId:homeId||null,awayName:f?.teams?.away?.name||'',awayShortName:f?.teams?.away?.name?.slice(0,24)||'',awayLogo:f?.teams?.away?.logo||'',awayTeamId:awayId||null,
     homeScore,awayScore,halfTimeHomeScore:n(ht.home),halfTimeAwayScore:n(ht.away),
     leagueName:f?.league?.name||'',leagueCountry:f?.league?.country||'',sportName:'Futebol',
     stats,events,rawState:short,venue:f?.fixture?.venue?.name||''

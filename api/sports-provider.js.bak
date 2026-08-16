@@ -62,13 +62,13 @@ function normalizeFixture(f){
   const homeScore=n(f?.goals?.home), awayScore=n(f?.goals?.away);
   const stats=normalizeStatsWithTeams(f?.statistics,homeId,awayId);
   const events=(Array.isArray(f?.events)?f.events:[]).map(e=>({
-    type:String(e?.type||''),detail:String(e?.detail||''),minute:n(e?.time?.elapsed),extra:n(e?.time?.extra),teamId:e?.team?.id??null
+    type:String(e?.type||''),detail:String(e?.detail||''),minute:(e?.time?.elapsed!=null?Number(e.time.elapsed):null),extra:n(e?.time?.extra),teamId:e?.team?.id??null
   }));
   const ht=f?.score?.halftime||{};
   return {
     provider:'api-football',providerEventId:String(f?.fixture?.id||''),providerVersion:'api-football-v3',
-    startTime:f?.fixture?.date||null,status:cancelled?'cancelled':finished?'finished':live?'live':'scheduled',
-    homeName:f?.teams?.home?.name||'',awayName:f?.teams?.away?.name||'',
+    startTime:f?.fixture?.date||null,minute:n(f?.fixture?.status?.elapsed),status:cancelled?'cancelled':finished?'finished':live?'live':'scheduled',
+    homeName:f?.teams?.home?.name||'',homeShortName:f?.teams?.home?.name?.slice(0,24)||'',homeLogo:f?.teams?.home?.logo||'',homeTeamId:homeId||null,awayName:f?.teams?.away?.name||'',awayShortName:f?.teams?.away?.name?.slice(0,24)||'',awayLogo:f?.teams?.away?.logo||'',awayTeamId:awayId||null,
     homeScore,awayScore,halfTimeHomeScore:n(ht.home),halfTimeAwayScore:n(ht.away),
     leagueName:f?.league?.name||'',leagueCountry:f?.league?.country||'',sportName:'Futebol',
     stats,events,rawState:short,venue:f?.fixture?.venue?.name||''
@@ -91,14 +91,7 @@ async function fetchApiFootballFixtures({token,startDate,endDate,timeoutMs=10000
     base.push(...(Array.isArray(p?.response)?p.response:[]));
   }
   // Enriquecemos somente partidas live/finalizadas, agrupando até 20 IDs por chamada.
-  const ids=base.filter(f=>['1H','HT','2H','ET','BT','P','LIVE','FT','AET','PEN'].includes(String(f?.fixture?.status?.short||'').toUpperCase())).map(f=>f?.fixture?.id).filter(Boolean);
-  const enriched=new Map();
-  for(let i=0;i<ids.length;i+=20){
-    const chunk=ids.slice(i,i+20); if(!chunk.length)continue;
-    const p=await apiGet(`/fixtures?ids=${chunk.join('-')}`,token,timeoutMs);
-    for(const f of (p?.response||[]))enriched.set(String(f?.fixture?.id),f);
-  }
-  return base.map(f=>normalizeFixture(enriched.get(String(f?.fixture?.id))||f)).filter(x=>x.providerEventId&&x.homeName&&x.awayName);
+  return base.map(f=>normalizeFixture(f)).filter(x=>x.providerEventId&&x.homeName&&x.awayName);
 }
 
 async function fetchApiFootballFixturePlayers({token,fixtureId,timeoutMs=10000}={}){

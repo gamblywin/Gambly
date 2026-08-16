@@ -43,10 +43,18 @@ export interface EventSummary {
 
 export type LiveGame = {
   id: string;
+  sport?: string;
   home: string;
   away: string;
   league: string;
   country?: string;
+  homeShortName?: string;
+  awayShortName?: string;
+  homeLogo?: string;
+  awayLogo?: string;
+  homeTeamId?: string | number;
+  awayTeamId?: string | number;
+  providerEventId?: string;
   homeScore?: number | null;
   awayScore?: number | null;
   minute?: number | null;

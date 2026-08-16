@@ -18,11 +18,12 @@ export const updateProfile = (payload: {name:string;handle:string;bio:string;ava
 export const getNotifications = () => api<{ notifications: unknown[] }>('/api/notifications');
 export const getMessages = () => api<{ conversations: unknown[] }>('/api/messages');
 export const getCommunities = () => api<{ communities: unknown[] }>('/api/communities');
-export const getLiveGames = (params: { search?: string; country?: string; league?: string; status?: string } = {}) => {
+export const getLiveGames = (params: { search?: string; country?: string; league?: string; sport?: string; status?: string } = {}) => {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k,v]) => { if (v) q.set(k,v); });
   return api<{ games: LiveGame[]; total: number; liveCount: number; updatedAt: string; source: string }>(`/api/sports/live${q.toString()?`?${q}`:''}`);
 };
+export const getSportsFeed = () => api<{ games: LiveGame[]; total: number; liveCount: number; updatedAt: string; source: string }>('/api/sports/feed');
 export const getEvents = () => api<{ events: Event[] }>('/api/events');
 export const getEvent = (id: string) => api<{ event: Event & {homeTeam:string;awayTeam:string;league:string;country?:string;sport?:string;events?: unknown[];stats?: any} }>(`/api/events/${encodeURIComponent(id)}`);
 export const getEventPlayers = (id: string) => api<{ players: PlayerStat[]; source?: string }>(`/api/events/${encodeURIComponent(id)}/players`);

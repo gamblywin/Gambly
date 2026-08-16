@@ -1,4 +1,3 @@
-
 const http=require('http');
 const fs=require('fs');
 const path=require('path');
@@ -29,6 +28,8 @@ const IS_PROD=process.env.NODE_ENV==='production';
 const COOKIE_SECURE=IS_PROD || APP_ORIGIN.startsWith('https://');
 const PUBLIC_ORIGIN=APP_ORIGIN || (process.env.RENDER_EXTERNAL_URL||'').replace(/\/$/,'');
 const sessions=new Map(), streamTokens=new Map(), sseClients=new Set(), rateBuckets=new Map(), oauthStates=new Map();
+const sportsLogoCache=new Map();
+let sportsSyncAt=0, sportsSyncPromise=null;
 const SESSION_TTL=1000*60*60*24*7, RESET_TTL=1000*60*30, PBKDF2_ITERATIONS=120000;
 const uid=p=>p+crypto.randomBytes(7).toString('hex');
 function hashPassword(password){const salt=crypto.randomBytes(16).toString('hex');const hash=crypto.pbkdf2Sync(String(password),salt,PBKDF2_ITERATIONS,32,'sha256').toString('hex');return `pbkdf2$${PBKDF2_ITERATIONS}$${salt}$${hash}`}
@@ -47,7 +48,7 @@ function eventSummary(db,event){
   if(!event)return null;
   const home=(db.teams||[]).find(t=>t.id===event.homeTeamId), away=(db.teams||[]).find(t=>t.id===event.awayTeamId), league=(db.leagues||[]).find(l=>l.id===event.leagueId);
   const last=Array.isArray(event.providerEvents)?event.providerEvents[event.providerEvents.length-1]:null;
-  return {id:event.id,homeTeam:home?.name||'Casa',awayTeam:away?.name||'Fora',league:league?.name||'Futebol',country:league?.country||'',startTime:event.startTime,status:event.status,homeScore:event.homeScore??null,awayScore:event.awayScore??null,minute:last?.minute??null};
+  return {id:event.id,homeTeam:home?.name||'Casa',awayTeam:away?.name||'Fora',homeLogo:home?.logoUrl||'',awayLogo:away?.logoUrl||'',homeTeamId:home?.providerTeamId??home?.id??'',awayTeamId:away?.providerTeamId??away?.id??'',league:league?.name||'Futebol',country:league?.country||'',startTime:event.startTime,status:event.status,homeScore:event.homeScore??null,awayScore:event.awayScore??null,minute:event.minute??last?.minute??null};
 }
 function publicPost(p,db,viewerId=''){const u=db.users.find(x=>x.id===p.authorId);const event=p.eventId?eventSummary(db,db.events?.find(e=>e.id===p.eventId)):null;return {...p,author:u?.name||p.author,handle:u?.handle||p.handle,authorAvatar:u?.avatar||'',liked:Boolean(viewerId&&Array.isArray(p.likedBy)&&p.likedBy.includes(viewerId)),event}}
 function passwordStrength(p){let n=0;if(p.length>=8)n++;if(/[A-Z]/.test(p))n++;if(/[a-z]/.test(p))n++;if(/\d/.test(p))n++;if(/[^A-Za-z0-9]/.test(p))n++;return n}
@@ -67,10 +68,35 @@ async function sendResetEmail(email,url){if(!process.env.RESEND_API_KEY)return f
 function normalizeTeamName(v){
   return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 }
-function findOrCreateTeam(db,name){
+function findOrCreateTeam(db,name,logoUrl='',shortName='',providerTeamId=null){
   const key=normalizeTeamName(name);
-  let team=(db.teams||[]).find(t=>normalizeTeamName(t.name)===key);
-  if(!team){team={id:uid('tm_'),name,shortName:name.slice(0,30),logoUrl:''};db.teams.push(team)}
+  const pid=providerTeamId!=null?Number(providerTeamId):null;
+
+  let team=(db.teams||[]).find(t=>{
+    if(pid!=null && t.providerTeamId!=null && Number(t.providerTeamId)===pid)return true;
+    return normalizeTeamName(t.name)===key;
+  });
+
+  if(!team){
+    team={
+      id:uid('tm_'),
+      name,
+      shortName:shortName||name.slice(0,30),
+      logoUrl:logoUrl||'',
+      providerTeamId:pid,
+      logoSource:logoUrl?'provider':''
+    };
+    db.teams.push(team);
+  }else{
+    if(name) team.name=name;
+    if(shortName) team.shortName=shortName;
+    if(pid!=null) team.providerTeamId=pid;
+    if(logoUrl && !team.logoUrl){
+      team.logoUrl=logoUrl;
+      team.logoSource='provider';
+    }
+  }
+
   return team;
 }
 function findOrCreateSport(db,name){
@@ -98,24 +124,90 @@ function matchLocalEvent(db,fixture){
     return Number.isFinite(dt) && dt<=180;
   })||null;
 }
+async function resolveSecondaryTeamLogo(team){
+  if(!team || team.logoUrl) return team?.logoUrl||'';
+  const key=normalizeTeamName(team.name);
+  if(!key) return '';
+  const cached=sportsLogoCache.get(key);
+  if(cached && cached.expiresAt>Date.now()) return cached.logo;
+  try{
+    const url=`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(team.name)}`;
+    const r=await timeoutFetch(url,{headers:{Accept:'application/json'}},6000);
+    const p=await r.json().catch(()=>({}));
+    const candidates=Array.isArray(p?.teams)?p.teams:[];
+    const exact=candidates.find(x=>normalizeTeamName(x?.strTeam)===key) || candidates.find(x=>normalizeTeamName(x?.strTeam||'').includes(key)||key.includes(normalizeTeamName(x?.strTeam||'')));
+    const logo=String(exact?.strBadge||exact?.strLogo||'').trim();
+    sportsLogoCache.set(key,{logo,expiresAt:Date.now()+7*86400000});
+    if(logo){team.logoUrl=logo;team.logoSource='thesportsdb';return logo;}
+  }catch{}
+  sportsLogoCache.set(key,{logo:'',expiresAt:Date.now()+6*3600000});
+  return '';
+}
+
+async function ensureSportsSync({force=false}={}){
+  const now=Date.now();
+  if(!force && now-sportsSyncAt<30000) return {synced:false};
+  if(sportsSyncPromise) return sportsSyncPromise;
+  if(!process.env.API_FOOTBALL_KEY && !process.env.SPORTS_SYNC_URL) return {synced:false,reason:'provider-not-configured'};
+  sportsSyncPromise=syncSportsAndSettle().then(result=>{sportsSyncAt=Date.now();return {synced:true,...result}}).catch(err=>({synced:false,error:String(err?.message||err)})).finally(()=>{sportsSyncPromise=null});
+  return sportsSyncPromise;
+}
+
+async function hydrateMissingLogosForVisibleEvents(db, limit=16){
+  db.teams=db.teams||[];
+  const ids=new Set();
+  const events=(db.events||[]).slice().sort((a,b)=>sportsPriority(sportsEventView(db,b))-sportsPriority(sportsEventView(db,a))).slice(0,Math.max(1,Math.ceil(limit/2)));
+  events.forEach(e=>{ids.add(e.homeTeamId);ids.add(e.awayTeamId)});
+  const missing=[...ids].map(id=>db.teams.find(t=>t.id===id)).filter(Boolean).filter(t=>!t.logoUrl).slice(0,limit);
+  if(!missing.length) return false;
+  let changed=false;
+  for(let i=0;i<missing.length;i+=4){
+    const batch=missing.slice(i,i+4);
+    const results=await Promise.all(batch.map(resolveSecondaryTeamLogo));
+    if(results.some(Boolean)) changed=true;
+  }
+  if(changed) await dbStore.write(db);
+  return changed;
+}
+
+function sportsEventView(db,e){
+  const home=(db.teams||[]).find(t=>t.id===e.homeTeamId)||{}, away=(db.teams||[]).find(t=>t.id===e.awayTeamId)||{}, league=(db.leagues||[]).find(l=>l.id===e.leagueId)||{};
+  const last=Array.isArray(e.providerEvents)?e.providerEvents[e.providerEvents.length-1]:null;
+  return {id:e.id,sport:e.sportId?(db.sports||[]).find(s=>s.id===e.sportId)?.name||'Futebol':'Futebol',league:league.name||'Futebol',country:league.country||'Internacional',home:home.name||'Casa',away:away.name||'Fora',homeShortName:home.shortName||home.name||'Casa',awayShortName:away.shortName||away.name||'Fora',homeLogo:home.logoUrl||'',awayLogo:away.logoUrl||'',homeTeamId:home.providerTeamId||home.id,awayTeamId:away.providerTeamId||away.id,homeScore:e.homeScore??null,awayScore:e.awayScore??null,minute:last?.minute??null,startTime:e.startTime,status:e.status,rawState:e.rawState||'',providerEventId:e.providerEventId||''};
+}
+
+function sportsPriority(g){
+  const league=normalizeTeamName(g.league||'');
+  const weights=[['champions league',1000],['brasileirao',950],['premier league',900],['la liga',850],['serie a',800],['bundesliga',750],['nba',700],['grand slam',650],['wimbledon',640],['us open',630],['roland garros',620],['australian open',610]];
+  const match=weights.find(([k])=>league.includes(normalizeTeamName(k)));
+  const leagueScore=match?match[1]:300;
+  const statusScore=g.status==='live'?5000:g.status==='scheduled'?1000:g.status==='finished'?100:0;
+  const start=Date.parse(g.startTime||'');
+  const proximity=Number.isFinite(start)?Math.max(0,100-Math.min(100,Math.abs(start-Date.now())/3600000*20)):0;
+  return statusScore+leagueScore+proximity;
+}
+
+function sortFeedGames(games){return games.slice().sort((a,b)=>sportsPriority(b)-sportsPriority(a));}
+
 async function syncSportsAndSettle(){
   const db=await dbStore.read(); db.sports=db.sports||[]; db.leagues=db.leagues||[]; db.teams=db.teams||[]; db.events=db.events||[]; db.predictions=db.predictions||[]; db.predictionSlips=db.predictionSlips||[]; db.notifications=db.notifications||[];
-const start=new Date();
-start.setHours(0,0,0,0);
-const end=new Date(start);
-end.setDate(end.getDate()+2);
-start.setHours(0,0,0,0);
-end.setHours(23,59,59,999);
+  const days=Math.max(1,Math.min(7,Number(process.env.SPORTS_SYNC_DAYS||2)));
+  const start=new Date(); start.setHours(0,0,0,0); const end=new Date(Date.now()+days*86400000);
   const {provider,fixtures}=await fetchProviderFixtures({token:process.env.API_FOOTBALL_KEY,startDate:start,endDate:end,timeoutMs:Number(process.env.SPORTS_SYNC_TIMEOUT_MS||10000)});
   let created=0,updated=0,settled=0,unresolved=0;
   for(const f of fixtures){
     const sport=findOrCreateSport(db,f.sportName||'Futebol');
     const league=findOrCreateLeague(db,f.leagueName||'Sem competição',f.leagueCountry||'',sport.id);
-    const home=findOrCreateTeam(db,f.homeName), away=findOrCreateTeam(db,f.awayName);
+    const home=findOrCreateTeam(db,f.homeName,f.homeLogo||'',f.homeShortName||'',f.homeTeamId||null), away=findOrCreateTeam(db,f.awayName,f.awayLogo||'',f.awayShortName||'',f.awayTeamId||null);
     let e=matchLocalEvent(db,f);
-    if(!e){e={id:uid('ev_'),sportId:sport.id,leagueId:league.id,homeTeamId:home.id,awayTeamId:away.id,startTime:f.startTime,status:f.status,homeScore:f.homeScore,awayScore:f.awayScore,providerEventId:f.providerEventId,resultSource:provider,resultSourceVersion:f.providerVersion||'v3',resultReceivedAt:new Date().toISOString(),updatedAt:new Date().toISOString(),stats:f.stats||{},halfTimeHomeScore:f.halfTimeHomeScore??null,halfTimeAwayScore:f.halfTimeAwayScore??null,providerName:provider,providerEvents:f.events||[]};db.events.push(e);created++}
+    if(!e){e={id:uid('ev_'),sportId:sport.id,leagueId:league.id,homeTeamId:home.id,awayTeamId:away.id,startTime:f.startTime,status:f.status,homeScore:f.homeScore,awayScore:f.awayScore,minute:f.minute??null,providerEventId:f.providerEventId,resultSource:provider,resultSourceVersion:f.providerVersion||'v3',resultReceivedAt:new Date().toISOString(),updatedAt:new Date().toISOString(),stats:f.stats||{},halfTimeHomeScore:f.halfTimeHomeScore??null,halfTimeAwayScore:f.halfTimeAwayScore??null,providerName:provider,providerEvents:f.events||[]};db.events.push(e);created++}
     else {
-      e.providerEventId=f.providerEventId||e.providerEventId; e.startTime=f.startTime||e.startTime; e.status=f.status; e.homeScore=f.homeScore; e.awayScore=f.awayScore; e.resultSource=provider; e.resultSourceVersion=f.providerVersion||'v3'; e.stats=f.stats||e.stats||{}; e.halfTimeHomeScore=f.halfTimeHomeScore??e.halfTimeHomeScore??null; e.halfTimeAwayScore=f.halfTimeAwayScore??e.halfTimeAwayScore??null; e.providerEvents=f.events||e.providerEvents||[]; e.providerName=provider; e.resultReceivedAt=new Date().toISOString(); e.updatedAt=e.resultReceivedAt; updated++;
+     e.homeTeamId=home.id;
+     e.awayTeamId=away.id;
+     home.providerTeamId=f.homeTeamId??home.providerTeamId??null;
+     away.providerTeamId=f.awayTeamId??away.providerTeamId??null;
+     e.minute=f.minute??null;
+     e.providerEventId=f.providerEventId||e.providerEventId; e.startTime=f.startTime||e.startTime; e.status=f.status; e.homeScore=f.homeScore; e.awayScore=f.awayScore; e.resultSource=provider; e.resultSourceVersion=f.providerVersion||'v3'; e.stats=f.stats||e.stats||{}; e.halfTimeHomeScore=f.halfTimeHomeScore??e.halfTimeHomeScore??null; e.halfTimeAwayScore=f.halfTimeAwayScore??e.halfTimeAwayScore??null; e.providerEvents=f.events||e.providerEvents||[]; e.providerName=provider; e.resultReceivedAt=new Date().toISOString(); e.updatedAt=e.resultReceivedAt; updated++;
     }
     if(e.status==='finished'||e.status==='cancelled'){
       const pendingForEvent=db.predictions.filter(p=>p.eventId===e.id&&p.result==='pending');
@@ -169,20 +261,25 @@ async function api(req,res,url){
   if(url.pathname==='/api/auth/logout'&&req.method==='POST'){const h=req.headers.authorization||'';if(h.startsWith('Bearer '))sessions.delete(h.slice(7));const cs=cookies(req);const c=cs.gambly_session||cs.betsocial_session;if(c)sessions.delete(c);return send(res,200,{ok:true},{'Set-Cookie':clearCookie()});}
   if(url.pathname==='/api/realtime/token'&&req.method==='POST'){if(!user)return send(res,401,{error:'Não autenticado'});const t=crypto.randomBytes(24).toString('hex');streamTokens.set(t,{userId:user.id,expiresAt:Date.now()+60000});return send(res,200,{token:t,expiresIn:60});}
   if(url.pathname==='/api/realtime'&&req.method==='GET'){const x=streamTokens.get(url.searchParams.get('token'));if(!x||x.expiresAt<Date.now())return send(res,401,'Unauthorized',{'Content-Type':'text/plain'});streamTokens.delete(url.searchParams.get('token'));res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache, no-transform','Connection':'keep-alive'});res.write(`event: connected\ndata: ${JSON.stringify({ok:true})}\n\n`);const c={userId:x.userId,res};sseClients.add(c);const timer=setInterval(()=>{try{res.write(`event: ping\ndata: ${JSON.stringify({time:Date.now()})}\n\n`)}catch{clearInterval(timer);sseClients.delete(c)}},25000);req.on('close',()=>{clearInterval(timer);sseClients.delete(c)});return;}
-  if(url.pathname==='/api/sports/live'&&req.method==='GET'){
+  if((url.pathname==='/api/sports/live'||url.pathname==='/api/sports/feed')&&req.method==='GET'){
+    const sync=await ensureSportsSync();
     const dbLive=await dbStore.read();
+    await hydrateMissingLogosForVisibleEvents(dbLive,16);
     const search=String(url.searchParams.get('search')||'').trim().toLowerCase();
     const country=String(url.searchParams.get('country')||'').trim().toLowerCase();
     const leagueFilter=String(url.searchParams.get('league')||'').trim().toLowerCase();
-    const statusFilter=String(url.searchParams.get('status')||'live').trim().toLowerCase();
-    let games=(dbLive.events||[]).filter(e=>statusFilter==='all'?true:e.status===statusFilter).map(e=>{
-      const summary=eventSummary(dbLive,e); return {id:e.id,league:summary.league,country:summary.country||'Internacional',home:summary.homeTeam,away:summary.awayTeam,homeScore:summary.homeScore,awayScore:summary.awayScore,minute:summary.minute,startTime:summary.startTime,status:e.status,rawState:e.rawState||''};
-    });
+    const sportFilter=String(url.searchParams.get('sport')||'').trim().toLowerCase();
+    const statusFilter=String(url.searchParams.get('status')||'all').trim().toLowerCase();
+    let games=(dbLive.events||[]).map(e=>sportsEventView(dbLive,e));
+    if(statusFilter!=='all')games=games.filter(g=>g.status===statusFilter);
     if(search)games=games.filter(g=>`${g.home} ${g.away} ${g.league} ${g.country}`.toLowerCase().includes(search));
     if(country)games=games.filter(g=>g.country.toLowerCase()===country);
     if(leagueFilter)games=games.filter(g=>g.league.toLowerCase().includes(leagueFilter));
-    const order={live:0,scheduled:1,finished:2,cancelled:3}; games.sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
-    return send(res,200,{source:'gambly-db',games,data:games,total:games.length,liveCount:(dbLive.events||[]).filter(e=>e.status==='live').length,updatedAt:new Date().toISOString()});
+    if(sportFilter)games=games.filter(g=>g.sport.toLowerCase()===sportFilter || (sportFilter==='football'&&normalizeTeamName(g.sport)==='futebol'));
+    const order={live:0,scheduled:1,finished:2,cancelled:3};
+    games.sort((a,b)=>url.pathname==='/api/sports/feed'?(sportsPriority(b)-sportsPriority(a)):((order[a.status]??9)-(order[b.status]??9)||sportsPriority(b)-sportsPriority(a)));
+    if(url.pathname==='/api/sports/feed' && !search && !country && !leagueFilter && !sportFilter && statusFilter==='all') games=games.slice(0,12);
+    return send(res,200,{source:sync?.provider||'gambly-db',games,total:games.length,liveCount:(dbLive.events||[]).filter(e=>e.status==='live').length,updatedAt:new Date().toISOString(),sync});
   }
 
   const eventDetail=url.pathname.match(/^\/api\/events\/([^/]+)$/);
@@ -193,11 +290,81 @@ async function api(req,res,url){
   }
   const eventPlayers=url.pathname.match(/^\/api\/events\/([^/]+)\/players$/);
   if(eventPlayers&&req.method==='GET'){
-    const dbEvents=await dbStore.read(), e=(dbEvents.events||[]).find(x=>x.id===eventPlayers[1]); if(!e)return send(res,404,{error:'Evento não encontrado.'});
-    if(!Array.isArray(e.playerStats)&&e.providerEventId&&process.env.API_FOOTBALL_KEY){try{e.playerStats=await fetchApiFootballFixturePlayers({token:process.env.API_FOOTBALL_KEY,fixtureId:e.providerEventId,timeoutMs:Number(process.env.SPORTS_SYNC_TIMEOUT_MS||10000)});e.playerStatsReceivedAt=new Date().toISOString();e.playerStatsSource='api-football';await dbStore.write(dbEvents)}catch(err){return send(res,502,{error:'Não foi possível carregar os jogadores agora.'})}}
-    return send(res,200,{players:Array.isArray(e.playerStats)?e.playerStats:[],source:e.playerStatsSource||'gambly-db'});
+    const dbEvents=await dbStore.read();
+    const e=(dbEvents.events||[]).find(x=>x.id===eventPlayers[1]);
+
+    if(!e){
+      return send(res,404,{error:'Evento não encontrado.'});
+    }
+
+    if(!e.providerEventId){
+      return send(res,200,{
+        players:[],
+        source:'gambly-db',
+        available:false,
+        message:'Este evento não possui ID do provedor.'
+      });
+    }
+
+    if(!process.env.API_FOOTBALL_KEY){
+      return send(res,503,{
+        players:[],
+        source:'api-football',
+        available:false,
+        error:'API_FOOTBALL_KEY não configurada.'
+      });
+    }
+
+    try{
+      const players=await fetchApiFootballFixturePlayers({
+        token:process.env.API_FOOTBALL_KEY,
+        fixtureId:e.providerEventId,
+        timeoutMs:Number(process.env.SPORTS_SYNC_TIMEOUT_MS||10000)
+      });
+
+      if(Array.isArray(players)&&players.length>0){
+        e.playerStats=players;
+        e.playerStatsReceivedAt=new Date().toISOString();
+        e.playerStatsSource='api-football';
+        e.playerStatsAvailable=true;
+
+        await dbStore.write(dbEvents);
+
+        return send(res,200,{
+          players,
+          source:'api-football',
+          available:true,
+          cached:false
+        });
+      }
+
+      e.playerStatsAvailable=false;
+      e.playerStatsLastCheckedAt=new Date().toISOString();
+      e.playerStatsSource='api-football';
+
+      await dbStore.write(dbEvents);
+
+      return send(res,200,{
+        players:[],
+        source:'api-football',
+        available:false,
+        cached:false,
+        message:'Os dados dos jogadores ainda não estão disponíveis para esta partida.'
+      });
+
+    }catch(err){
+      console.error('Players:',err);
+
+      return send(res,502,{
+        players:[],
+        source:'api-football',
+        available:false,
+        error:'Não foi possível carregar os jogadores agora.'
+      });
+    }
   }
-  // ===== GAMBLY MVP: eventos, palpites, histórico, estatísticas e ranking =====
+
+// ===== GAMBLY MVP: eventos, palpites, histórico, estatísticas e ranking =====
   // Administração/resultado: separado da conta comum para evitar que um usuário
   // consiga alterar resultados esportivos. Configure GAMBLY_ADMIN_TOKEN no ambiente.
   const adminAuthorized = () => {

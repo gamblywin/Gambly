@@ -7,9 +7,47 @@ import { PostCard } from './PostCard';
 
 function initials(name='') { return name.split(/\s+/).filter(Boolean).map(x=>x[0]).slice(0,2).join('').toUpperCase() || '⚽'; }
 function Logo({game, side}:{game:LiveGame;side:'home'|'away'}) {
-  const src=side==='home'?game.homeLogo:game.awayLogo;
+  const teamId=side==='home'?game.homeTeamId:game.awayTeamId;
+  const externalSrc=side==='home'?game.homeLogo:game.awayLogo;
   const name=side==='home'?game.home:game.away;
-  return <span className="sports-logo">{src ? <img src={src} alt="" loading="lazy" width={44} height={44} /> : <b>{initials(name)}</b>}</span>;
+
+  // Usa primeiro o proxy do próprio backend.
+  // A URL externa fica como fallback.
+  const src=teamId
+    ? `/api/sports/logo/${encodeURIComponent(String(teamId))}`
+    : externalSrc;
+
+  return (
+    <span className="sports-logo">
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          width={44}
+          height={44}
+          onError={(e)=>{
+            const img=e.currentTarget;
+
+            if(img.dataset.fallback==='1'){
+              img.style.display='none';
+              return;
+            }
+
+            img.dataset.fallback='1';
+
+            if(externalSrc && img.src!==externalSrc){
+              img.src=externalSrc;
+            }else{
+              img.style.display='none';
+            }
+          }}
+        />
+      ) : (
+        <b>{initials(name)}</b>
+      )}
+    </span>
+  );
 }
 function statusText(g:LiveGame){ if(g.status==='live') return g.minute!=null?`${g.minute}'`:'AO VIVO'; if(g.status==='finished') return 'ENCERRADO'; return g.startTime?new Date(g.startTime).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'AGENDADO'; }
 function statusLabel(g:LiveGame){ return g.status==='live'?'AO VIVO':g.status==='finished'?'ENCERRADO':'PRÓXIMO'; }

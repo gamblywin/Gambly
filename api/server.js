@@ -29,6 +29,7 @@ const COOKIE_SECURE=IS_PROD || APP_ORIGIN.startsWith('https://');
 const PUBLIC_ORIGIN=APP_ORIGIN || (process.env.RENDER_EXTERNAL_URL||'').replace(/\/$/,'');
 const sessions=new Map(), streamTokens=new Map(), sseClients=new Set(), rateBuckets=new Map(), oauthStates=new Map();
 const sportsLogoCache=new Map();
+const sportsLogoProxyCache=new Map();
 let sportsSyncAt=0, sportsSyncPromise=null;
 const SESSION_TTL=1000*60*60*24*7, RESET_TTL=1000*60*30, PBKDF2_ITERATIONS=120000;
 const uid=p=>p+crypto.randomBytes(7).toString('hex');
@@ -232,6 +233,53 @@ async function syncSportsAndSettle(){
 
 async function api(req,res,url){
   if(req.method==='OPTIONS')return send(res,204,'',{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'Content-Type, Authorization','Access-Control-Allow-Methods':'GET,POST,PATCH,OPTIONS'});
+  // Proxy público dos escudos dos times.
+  // Não exige autenticação porque o Feed precisa carregar as imagens.
+  const publicSportsLogo=url.pathname.match(/^\/api\/sports\/logo\/(\d+)$/);
+  if(publicSportsLogo&&req.method==='GET'){
+    const teamId=publicSportsLogo[1];
+    const cached=sportsLogoProxyCache.get(teamId);
+
+    if(cached&&cached.expiresAt>Date.now()){
+      res.writeHead(200,{
+        'Content-Type':cached.contentType||'image/png',
+        'Cache-Control':'public, max-age=86400, stale-while-revalidate=604800',
+        'X-Content-Type-Options':'nosniff'
+      });
+      return res.end(cached.body);
+    }
+
+    try{
+      const upstream=await fetch(
+        `https://media.api-sports.io/football/teams/${teamId}.png`,
+        {headers:{Accept:'image/png,image/*'}}
+      );
+
+      if(!upstream.ok){
+        return send(res,404,{error:'Escudo não encontrado.'});
+      }
+
+      const contentType=upstream.headers.get('content-type')||'image/png';
+      const body=Buffer.from(await upstream.arrayBuffer());
+
+      sportsLogoProxyCache.set(teamId,{
+        body,
+        contentType,
+        expiresAt:Date.now()+86400000
+      });
+
+      res.writeHead(200,{
+        'Content-Type':contentType,
+        'Cache-Control':'public, max-age=86400, stale-while-revalidate=604800',
+        'X-Content-Type-Options':'nosniff'
+      });
+      return res.end(body);
+    }catch(e){
+      console.error('Sports logo proxy:',e);
+      return send(res,502,{error:'Falha ao obter escudo.'});
+    }
+  }
+
   const user=await authUser(req);
   if(url.pathname==='/api/health'&&req.method==='GET')return send(res,200,{ok:true,version:'0.31.0',realtime:true,database:dbStore.getMode(),oauth:Boolean(process.env.GOOGLE_CLIENT_ID),time:new Date().toISOString()});
   if(url.pathname==='/api/ready'&&req.method==='GET'){try{const check=await dbStore.check();return send(res,check.ok?200:503,{ok:check.ok,version:'0.31.0',database:check.mode,...check})}catch(e){return send(res,503,{ok:false,error:'Banco indisponível'})}}
@@ -261,6 +309,7 @@ async function api(req,res,url){
   if(url.pathname==='/api/auth/logout'&&req.method==='POST'){const h=req.headers.authorization||'';if(h.startsWith('Bearer '))sessions.delete(h.slice(7));const cs=cookies(req);const c=cs.gambly_session||cs.betsocial_session;if(c)sessions.delete(c);return send(res,200,{ok:true},{'Set-Cookie':clearCookie()});}
   if(url.pathname==='/api/realtime/token'&&req.method==='POST'){if(!user)return send(res,401,{error:'Não autenticado'});const t=crypto.randomBytes(24).toString('hex');streamTokens.set(t,{userId:user.id,expiresAt:Date.now()+60000});return send(res,200,{token:t,expiresIn:60});}
   if(url.pathname==='/api/realtime'&&req.method==='GET'){const x=streamTokens.get(url.searchParams.get('token'));if(!x||x.expiresAt<Date.now())return send(res,401,'Unauthorized',{'Content-Type':'text/plain'});streamTokens.delete(url.searchParams.get('token'));res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache, no-transform','Connection':'keep-alive'});res.write(`event: connected\ndata: ${JSON.stringify({ok:true})}\n\n`);const c={userId:x.userId,res};sseClients.add(c);const timer=setInterval(()=>{try{res.write(`event: ping\ndata: ${JSON.stringify({time:Date.now()})}\n\n`)}catch{clearInterval(timer);sseClients.delete(c)}},25000);req.on('close',()=>{clearInterval(timer);sseClients.delete(c)});return;}
+
   if((url.pathname==='/api/sports/live'||url.pathname==='/api/sports/feed')&&req.method==='GET'){
     const sync=await ensureSportsSync();
     const dbLive=await dbStore.read();
